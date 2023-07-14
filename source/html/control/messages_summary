@@ -1,0 +1,31 @@
+#!/bin/gawk -f
+
+BEGIN {
+	printf "<table border=1><tr>"
+	printf "<th>Msg.</th><th>From</th><th>Date</th><th>Subject</th><th>&nbsp;</th>"
+	msgnum=0;
+}
+
+/^From / {
+	printf "</tr><tr>\n";
+	msgnum=msgnum+1;
+	fr=$2;
+	dt=$3 " " $4 " " $5 " " $6 " " $7;
+	printf "<td style='text-align: right'>%s</td>\n", msgnum;
+	printf "<td style='text-align: left'>%s</td>\n", fr;
+	printf "<td style='text-align: left'>%s</td>\n", dt;
+}
+
+/^Subject: / {
+	$1="";
+	printf "<form method=get>";
+	printf "<td style='text-align: left'>%s</td>\n", $0;
+	printf "<td style='text-align: left'>";
+	printf "<input type=hidden name=msg value=%s><input type=submit name=action value=View><input type=hidden name=form value=summary><input type=submit name=action value=Delete></form>", msgnum;
+	printf "</td>\n";
+	printf "</form>";
+}
+
+END {
+	printf "</tr></table>"
+}

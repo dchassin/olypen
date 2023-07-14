@@ -1,0 +1,49 @@
+#!/bin/gawk -f
+##!/bin/sed -rnf
+#
+#/^Current Condition/T scrape
+#
+#: scrape {
+#
+#s/<[^<>]+>//g
+#s/<script>[^<>]+<\/script>//g
+#
+#/Updated:/,+1p
+#/Observed At:/,+1p
+#
+#/Windchill:/,+2p
+#
+#/<\table>/b
+#}
+
+BEGIN {
+	go=0;
+}
+
+/<\/tr>/ {
+	if (go == 1)
+		printf "\n";
+}
+
+#/<\/td>/ {
+#	if (go == 1)
+#		printf ",";
+#}
+
+/Raw METAR/ {
+	go = 0
+}
+
+{
+	if (go == 1) {
+		gsub(/<[^<>]+>/,"");
+		gsub(/&[a-zA-Z]+;/,"");
+		gsub(/&#[0-9]+;/,"");
+		printf "%s", $0;
+	}
+}
+
+/<h3>Current Conditions<\/h3>/ {
+	go = 1;
+}
+

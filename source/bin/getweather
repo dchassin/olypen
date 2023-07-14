@@ -1,0 +1,30 @@
+#!/bin/bash
+
+ETC="$HOME/etc"
+RAW="$HOME/raw/weather"
+URL="http://www.weatherunderground.com/cgi-bin/findweather/getForecast?query="
+PATH=$PATH:$HOME/bin
+
+LCK="/var/lock/olypen/getweather.lck"
+DAILYLCK="/var/lock/daily.lck"
+RUNLCK="$HOME/lck/getweather.lck"
+
+if [ -f $LCK -o -f $DAILYLCK -o -f $RUNLCK ]; then
+	exit
+else
+	trap "rm -f $LCK" EXIT
+	echo "$(date): $$" >$LCK
+fi
+
+. $ETC/logger.conf
+. $ETC/mysql.conf
+
+# this reads the configured sites
+CONF=$(mysql -hollie -uolypen -ppower123 --batch olypen -e "select distinct(zipcode) as '' from weather_sites")
+for i in $CONF; do
+	(wget -q ${URL}$i -O - | scrapemeteo >$RAW/$i) || $LOGGER_ERROR "wget failed on site $i"
+	SQL=$(meteo2sql $RAW/$i $i)
+	(echo "$SQL" | mysql $MYSQLOPTS)  || $LOGGER_ERROR "mysql post failed on site $i: query='$SQL'"
+done
+echo "$(date +'%Y-%m-%d %H:%M:%S %Z'): $CONF" >$HOME/log/getweather.log
+

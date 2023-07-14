@@ -1,0 +1,27 @@
+#!/bin/bash
+eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+capacity=`echo $capacity | sed -e 's/[^0-9]//g'`
+feeder_id=`echo $feeder_id | sed -e 's/[^0-9]//g'`
+
+if [ -z "$capacity" ]; then
+	error="capacity is not a valid number"
+elif [ -z "$feeder_id" ]; then
+	error="feeder id is not a valid number"
+elif [ "$status" != "OK" -a "$status" != "OFF" ]; then
+	error="status is not valid"
+fi
+
+if [ -z "$error" ]; then
+	mysql -hollie -uolypen -ppower123 olypen -e "insert into feeder_status (feeder_id, capacity, status, posttime) values ($feeder_id, $capacity, '$status', now()) "
+fi
+
+echo "Content-type: text/html"
+echo ""
+echo "<HTML><HEAD><META HTTP-EQUIV=\"refresh\" CONTENT=\"5;URL=/olypen/feeder\"><link rel="stylesheet" type="text/css" href="/standard.css"></HEAD></HTML><BODY>"
+if [ -z "$error" ]; then
+	echo "<h1>Feeder control ok</h1><h2>Insert succeeded</h2>"
+else
+	echo "<h1>Feeder control failed</h1><h2>Report is '$error'.</h2>"
+fi
+echo "<HR>Returning to <a href=\"/olypen/feeder\">feeder panel</a> in 5 seconds...</BODY></HTML>"
+

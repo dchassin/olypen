@@ -1,0 +1,12 @@
+#!/bin/bash
+MYSQL="mysql -hollie -P923 -uolypen -ppower123 olypen"
+
+echo "Updating weather data..."
+$MYSQL <update_weather.sql || exit 1
+
+echo "Update usage models..."
+./update_models || exit 2
+
+echo "Updating usage projections..."
+$MYSQL <update_projections.sql || exit 3
+

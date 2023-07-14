@@ -1,0 +1,17 @@
+#!/bin/bash
+
+H=$(date +'%k')
+D=$(( $H % 7 - 3))
+avg=50
+std=10
+mkt=$(( $(date +'%s')/300 ))
+WS_OPTS="--quiet --append-output=$HOME/log/websphere.log --output-document=$HOME/log/websphere.out --timeout=5 --tries=10"
+#WS_OPTS=""
+url="http://joey.pnl.gov/gtWeb/MarketClearance"
+
+# hourly price saw tooth
+#LASTCLEAR="msgtype=marketclear&posttime=$(date +'%Y-%m-%d%%20%H%%3a%M%%3a%S')&quantity=100&price=$(($avg+$std*$D))&avg24=$avg&std24=$std&avg168=$avg&std168=$std&mkt_id=$mkt"
+
+# constant price
+LASTCLEAR="msgtype=marketclear&posttime=$(date +'%Y-%m-%d%%20%H%%3a%M%%3a%S')&quantity=100&price=$avg&avg24=$avg&std24=$std&avg168=$avg&std168=$std&mkt_id=$mkt"
+wget $WS_OPTS "$url?$LASTCLEAR"

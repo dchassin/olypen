@@ -1,0 +1,44 @@
+#!/bin/bash
+
+RAW="/data/olypen/raw/weatherforecast"
+
+today=$(date +%Y-%m-%d)
+year=$(date +%Y)       #Todays date
+month=$(date +%m)
+day=$(date +%d)
+hour24=$(date +%H)
+hourtime=$(date +%R)
+
+year2=$(date -d "1970-01-01 $(($(date -d "${today}" "+%s") + $((60 * 60 * 24)))) sec" "+%Y") #tommorrows date
+month2=$(date -d "1970-01-01 $(($(date -d "${today}" "+%s") + $((60 * 60 * 24)))) sec" "+%m")
+day2=$(date -d "1970-01-01 $(($(date -d "${today}" "+%s") + $((60 * 60 * 24)))) sec" "+%d")
+
+year3=$(date -d "1970-01-01 $(($(date -d "${today}" "+%s") - $((60 * 60 * 24)))) sec" "+%Y") #yesterdays date
+month3=$(date -d "1970-01-01 $(($(date -d "${today}" "+%s") - $((60 * 60 * 24)))) sec" "+%m")
+day3=$(date -d "1970-01-01 $(($(date -d "${today}" "+%s") - $((60 * 60 * 24)))) sec" "+%d")
+timeAM=$(date +%p)  #indicates whether it's AM or PM
+
+f1=$"_1.raw"
+f2=$"_2.raw"
+f3=$"_3.raw"
+f4=$"_4.raw"
+f11=$"_"
+
+URL="http://www.weatherperhour.com/forecast/forecast.asp?pc=98362&st="
+URL2="%2F"
+URL3="+6%3A00%3A00+AM"
+URL4="+6%3A00%3A00+PM"
+ 
+file1="$year$month$day$f11$hour24$f1"
+file2="$year$month$day$f11$hour24$f2"
+file3="$year$month$day$f11$hour24$f3"
+file4="$year$month$day$f11$hour24$f4"
+
+
+wget --no-cookies -q -L ${URL}$month${URL2}$day${URL2}$year${URL3} -O $RAW/"$file1"
+wget --no-cookies -q -L ${URL}$month${URL2}$day${URL2}$year${URL4} -O $RAW/"$file2"
+wget --no-cookies -q -L ${URL}$month2${URL2}$day2${URL2}$year2${URL3} -O $RAW/"$file3"
+wget --no-cookies -q -L ${URL}$month2${URL2}$day2${URL2}$year2${URL4} -O $RAW/"$file4"
+ 
+deletefile=$"$year3$month3$day3"
+rm -f $RAW/"$deletefile"*

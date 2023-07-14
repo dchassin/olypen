@@ -1,0 +1,142 @@
+h1 {
+	font-family: times-roman;
+	font-size: x-large;
+	font-size-adjust: none;
+	font-stretch: normal;
+	font-style: normal;
+	font-variant: small-caps;
+	font-weight: bold;
+	color: white;
+	background-color: darkblue;
+	direction: ltr;
+	letter-spacing: normal; 
+	text-align: center; 
+	text-decoration: none;
+	text-indent: 0;
+	text-shadow: none;
+	text-transform: none;
+	unicode-bidi: normal;
+	white-space: normal;
+	word-spacing: normal;
+	}
+h2 {
+	font-family: times-roman;
+	font-size: larger;
+	font-size-adjust: none;
+	font-stretch: normal;
+	font-style: italic;
+	font-variant: normal;
+	font-weight: normal;
+	color: black;
+	background-color: white;
+	direction: ltr;
+	letter-spacing: normal; 
+	text-align: center; 
+	text-decoration: none;
+	text-indent: 0;
+	text-shadow: none;
+	text-transform: none;
+	unicode-bidi: normal;
+	white-space: normal;
+	word-spacing: normal;
+	}
+h3 {
+	font-family: times-roman;
+	font-size: large;
+	font-size-adjust: none;
+	font-stretch: normal;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: bold;
+	color: black;
+	background-color: white;
+	direction: ltr;
+	letter-spacing: normal; 
+	text-align: left; 
+	text-decoration: none;
+	text-indent: 0;
+	text-shadow: none;
+	text-transform: none;
+	unicode-bidi: normal;
+	white-space: normal;
+	word-spacing: normal;
+	}
+
+h4 {
+	font-family: times-roman;
+	font-size: larger;
+	font-size-adjust: none;
+	font-stretch: normal;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: bold;
+	color: black;
+	background-color: white;
+	direction: ltr;
+	letter-spacing: normal; 
+	text-align: left; 
+	text-decoration: none;
+	text-indent: 0;
+	text-shadow: none;
+	text-transform: none;
+	unicode-bidi: normal;
+	white-space: normal;
+	word-spacing: normal;
+	}
+
+p {
+	font-family: times-roman;
+	font-size: normal;
+	font-size-adjust: none;
+	font-stretch: normal;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: normal;
+	color: black;
+	background-color: white;
+	direction: ltr;
+	letter-spacing: normal; 
+	text-align: left; 
+	text-decoration: none;
+	text-indent: 20;
+	text-shadow: none;
+	text-transform: none;
+	unicode-bidi: normal;
+	white-space: normal;
+	word-spacing: normal;
+	}
+
+body {
+	background-color: white;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	margin: 10px 10px 10px 10px;
+	}
+
+a {
+	color: blue;
+	background-color: white;
+	text_decoration: none;
+	}
+
+table {
+	background-color: white;
+	font-family: arial;
+	font-size: 8pt;
+	margin: 10px 10px 10px 10px;
+}
+
+th {
+	background-color: darkblue;
+	color: white;
+	font-weight: bold;
+	padding: 5;
+	text-align: center;
+}
+
+td {
+	background-color: lightyellow;
+	color: black;
+	padding: 2px;
+	text-align: right;
+}

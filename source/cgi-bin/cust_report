@@ -1,0 +1,68 @@
+#!/bin/bash
+
+eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+
+cust=$(echo $cust | sed -e 's/[^0-9]//g')
+year=$(echo $year | sed -e 's/[^0-9]//g')
+month=$(echo $month | sed -e 's/[^0-9]//g')
+group=$(echo $group | sed -e 's/[^0-9]//g')
+
+MYSQL="mysql -hollie -uolypen -ppower123 olypen -e"
+
+echo "Content-type: text/html"
+echo ""
+echo "<HTML><HEAD><link rel=stylesheet type=\"text/css\" href=\"/standard.css\"></HEAD><BODY>"
+
+[ ! -z "$year" ] || year=$(date +%Y)
+[ ! -z "$month" ] || month=$(date +%m)
+[ ! -z "$group" ] || group=100
+
+if [ -z "$cust" -o -z "$year" -o -z "$month" -o -z "$group" ]; then
+	error="incomplete request"
+fi
+
+if [ -z "$error" ]; then
+	type=$($MYSQL "SELECT contract_type_code '' FROM cust_contract_history where cust_id = $cust and start_date <= concat($year,'-',$month,'-01') and (concat($year,'-',$month,'-01') < end_date or end_date is null)" --batch)
+	[ -z "$type" ] && type="PENDING"
+
+	echo "<h1>Customer Billing Report</h1>"
+	echo "<table border=1 align=center><tr><th width=15% style=\"text-align: left\">Customer</th><td width=15% style=\"text-align: left\">$cust</td><th width=15% style=\"text-align: left\">Period</th><td width=15% style=\"text-align: left\">$month/$year</td><th width=15% style=\"text-align: left\">Contract type is</th><td width=15% style=\"text-align: left\">${type/[^A-Z]/}</td></tr></table>"
+	
+	case ${type//[^A-Z]/} in
+	'CTRL')
+		echo "Unable to calculate control group report at this time"
+		;;	
+	'FIXED')
+		echo "<center>"
+		$MYSQL "select date_format(min(m.read_time),'%b %Y') as Month, round(sum(m.demand)/12,1) as 'Energy<br>(kWh)', round(p.price,2) as 'Price<br>($/MWh)', round(sum(m.demand)*p.price/12000,2) as 'Charge<br>($)', if(year(m.read_time)=$year and month(m.read_time)=$month,'Open','&nbsp;') as 'Remarks' from cust_meter_trans as m join fixed_price as p on p.startdate <= m.read_time and (m.read_time <= p.enddate or p.enddate is NULL) where cust_id = $cust group by year(m.read_time)*12+month(m.read_time) order by m.read_time desc" --html || echo "Query failed"
+		echo "</center>"
+		;;
+	'TOU')
+		echo "<table width=\"100%\"><tr><td style=\"background-color: white; vertical-align: top; text-align: center\">"
+		$MYSQL "select distinct concat('<form action=/cgi-bin/cust_report method=get><input type=hidden name=cust value=$cust><input type=hidden name=group value=$group><input type=hidden name=year value=',date_format(read_time,'%Y'),'><input type=hidden name=month value=',date_format(read_time,'%m'),'><input type=submit value=\"',date_format(read_time,'%b %Y'),'\"></form>') as '<h3 align=center>History</h3>' from cust_meter_trans where cust_id = $cust order by read_time" --batch || echo "Query failed"
+		echo "</td><td style=\"background-color: white; vertical-align: top; text-align: center\">"
+		$MYSQL "SELECT round(sum(m.demand/12),1) as 'Energy<BR>(kWh)', round(p.price,2) as 'Price<br>($/kWh)', round(sum(m.demand)*p.price/12000,2) as 'Charges<br>($)' FROM cust_meter_trans as m join tou_prices as p on p.startdate <= m.read_time and (m.read_time <= p.enddate or p.enddate is NULL) and p.hour = hour(m.read_time) where cust_id = $cust and year(m.read_time) = $year and month(m.read_time) = $month group by p.price union select round(sum(m.demand/12),2), p.price, round(sum(m.demand)*p.price/12000,2) FROM cust_meter_trans as m join critical_prices as p on to_days(m.read_time) = to_days(p.cpp_date) and p.cpp_hour = hour(m.read_time) where cust_id = $cust and year(m.read_time) = $year and month(m.read_time) = $month group by p.price" --html || echo "Query failed"
+		echo "</td></tr></table>"
+		;;
+	'RTP')
+		echo "<table width=\"100%\"><tr><td style=\"background-color: white; vertical-align: top; text-align: center\">"
+		$MYSQL "select distinct concat('<form action=/cgi-bin/cust_report method=get><input type=hidden name=cust value=$cust><input type=hidden name=group value=$group><input type=hidden name=year value=',date_format(read_time,'%Y'),'><input type=hidden name=month value=',date_format(read_time,'%m'),'><input type=submit value=\"',date_format(read_time,'%b %Y'),'\"></form>') as '<h3 align=center>History</h3>' from cust_meter_trans where cust_id = $cust order by read_time" --batch || echo "Query failed"
+		echo "</td><td style=\"background-color: white; vertical-align: top; text-align: center\">"
+		echo "<h3 align=center>Breakdown by energy price</h3>"
+		$MYSQL "select concat(round(floor(c.price/$group)*$group,2),' - ',round(ceiling(c.price/$group)*$group,2)) as 'Price<br>($/MWh)', concat(sec_to_time(count(*)*300),' (',round(count(*)/((unix_timestamp(concat(if($month<12,$year,$year+1),'-',if($month<12,$month+1,1),'-01'))-unix_timestamp(concat($year,'-',$month,'-01')))/300)*100,2),'%)') as 'Duration<br>(h:m:s)', round(sum(m.demand/12),3) as 'Energy<br>(kWh)', round(sum(m.demand*c.price/12000),2) as 'Charges<br>($)' from cust_meter_trans as m join clear as c on floor(unix_timestamp(m.read_time)/300) = c.mkt_id where m.cust_id = $cust and year(c.posttime)*12+month(c.posttime) = $year*12+$month group by floor(c.price/$group)" --html || echo "Query failed"
+		echo "</td><td style=\"background-color: white; vertical-align: top; text-align: center\">"
+		echo "<h3 align=center>Breakdown by day of week</h3>"
+		$MYSQL "select date_format(m.read_time,'%a') as Day, round(sum(m.demand/12),3) as 'Energy<br>(kWh)', round(sum(m.demand*c.price/12000),2) as 'Charges<br>($)' from cust_meter_trans as m join clear as c on floor(unix_timestamp(m.read_time)/300) = c.mkt_id where m.cust_id = $cust and year(c.posttime)*12+month(c.posttime) = $year*12+$month group by dayofweek(m.read_time)" --html || echo "Query failed"
+		echo "</td><td style=\"background-color: white; vertical-align: top; text-align: center\">"
+		echo "<h3 align=center>Breakdown by day of month</h3>"
+		$MYSQL "select date_format(m.read_time,'%a %e') as Day, round(sum(m.demand/12),3) as 'Energy<br>(kWh)', round(sum(m.demand*c.price/12000),2) as 'Charges<br>($)' from cust_meter_trans as m join clear as c on floor(unix_timestamp(m.read_time)/300) = c.mkt_id where m.cust_id = $cust and year(c.posttime)*12+month(c.posttime) = $year*12+$month group by dayofmonth(m.read_time)" --html || echo "Query failed"
+		echo "</td></tr></table>"
+		;;
+	*)	echo "Unable to report on pending contract type";;
+	esac
+fi
+if [ ! -z "$error" ]; then
+	echo "<h1>Error</h1><h2>Report is '$error'</h2>"
+	echo $QUERY_STRING
+fi
+echo "<HR></BODY></HTML>"

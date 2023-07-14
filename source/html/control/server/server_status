@@ -1,0 +1,35 @@
+#!/bin/bash
+
+parms="${QUERY_STRING//&/;}"
+eval $parms
+
+echo "<h1>Olypen Services</h1>"
+echo "<table border=1><tr>"
+echo "<tr><th>Service</th><th>Current Status</th><th>Change to</th><th>Last completed</th></tr>"
+for i in "dowjones:Dow Jones feed:$dowjones" "clearmkt:Market clearing:$clearmkt" "notify:Market notifier:$notify" "nextmidc:MIDC pricer:$nextmidc" "readfreq:Frequency monitor:$readfreq" "getweather:NOAA feed:$getweather"; do
+	a=$(echo $i | cut -f1 -d:)
+	b=$(echo $i | cut -f2 -d:)
+	c=$(echo $i | cut -f3 -d:)
+	lck=~olypen/lck/$a.lck
+	cnf=~olypen/etc/$a.conf
+	msg=$(< ~olypen/log/$a.log)
+	if [ ! -z "$c" ]; then
+		if [ "$c" = "Off" ]; then
+			echo "$(date): $REMOTE_USER@$REMOTE_ADDR" > $lck
+		elif [ "$c" = "On" -a -f $lck ]; then
+			rm -f $lck
+		fi
+	fi
+	echo "<th style='text-align: left'>$b</th>"
+	if [ -f $lck ]; then
+		echo "<form action='$DOCUMENT_URI' method=get><td style='text-align: center'><input type=submit name=$a value=On></td><td style='text-align: center'><b>Off</b></td><td style='text-align: right'>${msg:-&nbsp;}</td></form>"
+	elif [ -f $cnf ]; then
+		echo "<form action='$DOCUMENT_URI' method=get><td style='text-align: center'><b>On</b></td><td style='text-align: center'><input type=submit name=$a value=Off></td><td style='text-align: right'>${msg:-&nbsp;}</td></form>"
+	else
+		echo "<td style='text-align: center'>(na)</td><td style='text-align: center'>(na)</td><td style='text-align: right'>${msg:-&nbsp;}</td>"
+	fi
+	echo "</tr><tr>"
+done
+echo "</tr></table>"
+#echo "<pre>$(printenv)</pre>"
+

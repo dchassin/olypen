@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# this script clears the market
+#
+
+ETC=$HOME/etc
+. $ETC/logger.conf || (echo "unable to read logger configuration" >>/dev/stderr && exit)
+. $ETC/mysql.conf || ($LOGGER_ERROR "unable to read mysql configuration" && exit)
+
+LCK="/var/lock/olypen/clearmkt.lck"
+DAILYLCK="/var/lock/daily.lck"
+RUNLCK="$HOME/lck/clearmkt.lck"
+
+if [ -f $LCK -o -f $DAILYLCK -o -f $RUNLCK ]; then
+	exit
+else
+	trap "rm -f $LCK" EXIT
+	echo "$(date): $$" >$LCK
+fi
+
+# accept incoming bids
+mysql $MYSQLOPTS -e "update buy set mkt_id = ceiling(unix_timestamp(posttime)/300) where mkt_id = 0 and ceiling(unix_timestamp(posttime)/300) = floor(unix_timestamp()/300)" || $LOGGER_ERROR "unable to accept buys";
+mysql $MYSQLOPTS -e "update sell set mkt_id = ceiling(unix_timestamp(posttime)/300) where mkt_id = 0 and ceiling(unix_timestamp(posttime)/300) = floor(unix_timestamp()/300)" || $LOGGER_ERROR "unable to accept sells";
+
+# clear the market
+($HOME/bin/clear.pl | mysql $MYSQLOPTS) || exit
+LASTCLEAR=$($HOME/bin/lastclear)
+
+echo "$(date +'%Y-%m-%d %H:%M:%S %Z'): $LASTCLEAR" >$HOME/log/clearmkt.log
+
+# reject failed bids
+mysql $MYSQLOPTS -e "update buy set mkt_id = -ceiling(unix_timestamp()/300) where mkt_id = 0 and ceiling(unix_timestamp(posttime)/300) <= floor(unix_timestamp()/300)" || $LOGGER_ERROR "unable to reject buys";
+mysql $MYSQLOPTS -e "update sell set mkt_id = -ceiling(unix_timestamp()/300) where mkt_id = 0 and ceiling(unix_timestamp(posttime)/300) <= floor(unix_timestamp()/300)" || $LOGGER_ERROR "unable to reject sells";
+
+# send notifications to market clients that need immediate knowledge of clearing
+if [ -f $HOME/etc/websphere.conf -a -f $HOME/etc/notify.conf ]; then
+	. $HOME/etc/websphere.conf || ($LOGGER_ERROR "unable to read websphere configuration" && exit)
+	if [ "$WS_ENABLED" = "yes" -a ! -f $HOME/lck/notify.lck ]; then
+		L=$(cat $ETC/notify.conf | grep -v '^#')
+		for url in $L; do
+			date=$(date)
+			(wget $WS_OPTS $url\?$LASTCLEAR || $LOGGER_ERROR "notify to $url at $date failed") &
+		done
+		echo "$(date +'%Y-%m-%d %H:%M:%S %Z'): $LASTCLEAR" >$HOME/log/notify.log
+	fi
+fi
+
+# dispatch DG units
+if [ -f $HOME/test/dispatch ]; then
+	date >>$HOME/log/test-dispatch.log
+	$HOME/test/dispatch >> $HOME/log/test-dispatch.log || $LOGGER_ERROR "test dispatch failed"
+fi
+
+# detect onset of critical peak
+if [ -f $HOME/test/critical ]; then
+	date >>$HOME/log/test-critical.log
+	$HOME/test/critical >> $HOME/log/test-critical.log || $LOGGER_ERROR "critical event failed"
+fi

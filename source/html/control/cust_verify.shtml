@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstation Project</title>
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<body>
+<!--#exec cmd="./navbar 'Signup status' Signups"-->
+<h2>Customer database verification</h2>
+<!--#exec cmd="mysql -uolypen -hollie -ppower123 olypen --html -e '
+	select pnnl_acct_id as \"Customer\", history as \"History\", choices as \"Choices\"
+	from (select distinct 
+			concat(\"<b>\",pnnl_acct_id,\"</b>\") as pnnl_acct_id, 
+			\"<b>&radic;</b>\" as history, 
+			\"<b>&radic;</b>\" as choices,
+			pnnl_acct_id as rank
+		from cust_billing_history 
+		where pnnl_acct_id in (select distinct pnnl_acct_id from cust_contract_preference) 
+		union 
+		select distinct 
+			concat(\"<font color=blue>\",pnnl_acct_id,\"</font>\") as pnnl_acct_id, 
+			\"<font color=blue>&radic;</font>\" as history, 
+			\"<font color=blue>&nbsp;</font>\" as choices,
+			pnnl_acct_id as rank
+		from cust_billing_history 
+		where pnnl_acct_id not in (select distinct pnnl_acct_id from cust_contract_preference) 
+		union 
+		select distinct 
+			concat(\"<font color=blue>\",pnnl_acct_id,\"</font>\") as pnnl_acct_id,
+			\"<font color=blue>&nbsp;</font>\" as history, 
+			\"<font color=blue>&radic;</font>\" as choices,
+			pnnl_acct_id as rank 
+		from cust_contract_preference 
+		where pnnl_acct_id not in (select distinct pnnl_acct_id from cust_billing_history) 
+		  and utility not in (\"T\", \"X\") 
+		union 
+		select distinct
+			concat(\"<font color=red>\",pnnl_acct_id,\"</font>\") as pnnl_acct_id,
+			concat(\"<font color=red>\",utility,\"</font>\") as history, 
+			concat(\"<font color=red>\",utility,\"</font>\") as choice,
+			pnnl_acct_id as ranks
+		from cust_contract_preference 
+		where utility in (\"T\",\"X\")
+	) as a 
+	order by rank
+'"-->
+</body>
+</html>

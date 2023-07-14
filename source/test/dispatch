@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+#
+use DBI;
+
+$dbh = DBI->connect("DBI:mysql:olypen","olypen","power123");
+
+# handlerenewed licenses
+#$sth = $dbh->prepare('UPDATE dg SET state = "RDY" WHERE state="OFF" AND run_hours < license_hours AND now() BETWEEN license_start AND license_end')
+#	or die "Couldn't prepare license renewal query: " . $dbh->errstr;
+#$sth->execute() or die "Couldn't execute license renewal query: " . $sth->errstr;
+
+# haneld expired licenses
+$sth = $dbh->prepare('UPDATE dg SET state = "OFF" WHERE run_hours > license_hours OR now() > license_end')
+	or die "Couldn't prepare license expiration query: " . $dbh->errstr;
+$sth->execute() or die "Couldn't execute license expiration query: " . $sth->errstr;
+
+# identify current clearing price
+$sth = $dbh->prepare('SELECT price FROM clear WHERE unix_timestamp(now())-unix_timestamp(posttime)<300 ORDER BY posttime DESC LIMIT 1')
+	or die "Couldn't prepare query for market clearing price: " . $dbh->errstr;
+$sth->execute() or die "Couldn't get market clearing price: " . $sth->errstr;
+$price = $sth->fetchrow_array();
+#print "Clearing price is \$$price/MWh\n";
+
+# get db unit list
+$sth = $dbh->prepare('SELECT unit_id, price, state FROM dg join sell on unit_id=seller_id WHERE unix_timestamp(now())-unix_timestamp(posttime)<300 and state!="OFF" and now() between license_start and license_end and run_hours<license_hours')
+	or die "Couldn't prepare query for dg unit list: " . $dbh->errstr;
+$sth->execute() or die "Couldn't get total dg unit list: " . $sth->errstr;
+while (@data = $sth->fetchrow_array()) {
+	$unit_id = $data[0];
+	$lastbid = $data[1];
+	$state = $data[2];
+	
+	#print "Last bid from unit $unit_id (state=$state) was \$$lastbid/MWh\n";
+
+	if ($state eq 'RDY' and $lastbid <= $price) {
+		#printf "Unit $unit_id startup.\n";
+		$sub = $dbh->prepare("UPDATE dg SET state='RUN', statechange_time=now(), run_hours=run_hours+1/12 WHERE unit_id=$unit_id")
+			or die "Couldn't prepare query to start dg unit $unit_id: " . $dbh->errstr;
+		$sub->execute() or die "Couldn't execute query to start db unit $unit_id: " . $sub->errstr;
+	}
+	elsif ($state eq 'RUN') {
+		if ($lastbid > $price) {
+			$sub = $dbh->prepare("UPDATE dg SET state='RDY', statechange_time=now() WHERE unit_id=$unit_id")
+				or die "Couldn't prepare query to start dg unit $unit_id: " . $dbh->errstr;
+			$sub->execute() or die "Couldn't execute query to start db unit $unit_id: " . $sub->errstr;
+			#printf "Unit $unit_id shutdown.\n";
+		}
+		else {
+			$sub = $dbh->prepare("UPDATE dg SET run_hours=run_hours+1/12 WHERE unit_id=$unit_id")
+				or die "Couldn't prepare query to start dg unit $unit_id: " . $dbh->errstr;
+			$sub->execute() or die "Couldn't execute query to start db unit $unit_id: " . $sub->errstr;
+			#printf "Unit $unit_id continues.\n";
+		}
+	}
+}
+

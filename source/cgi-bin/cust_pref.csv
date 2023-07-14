@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "Content-type: application/msexcel"
+echo ""
+mysql -hollie -uolypen -ppower123 olypen -e 'select * from cust_contract_preference' --batch | sed -s 's/\t/,/g'

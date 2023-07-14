@@ -1,0 +1,51 @@
+#!/bin/bash
+
+if [ ! -z "$QUERY_STRING" ]; then
+	eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+	pnnl_acct_id=${pnnl_acct_id//[^0-9]/}
+	utility=${utility//[^A-Z]/}
+	first_choice=${first_choice//[^A-Z]/}
+	second_choice=${second_choice//[^A-Z]/}
+
+	if [ "$utility" != "NULL" ]; then
+	        utility="'$utility'";
+	fi
+	if [ "$first_choice" != "NULL" ]; then
+	        first_choice="'$first_choice'";
+	fi
+	if [ "$second_choice" != "NULL" ]; then
+	        second_choice="'$second_choice'";
+	fi
+	
+	mysql -hollie -uolypen -ppower123 olypen -e "replace into cust_contract_preference (pnnl_acct_id, utility, first_choice, second_choice) values ($pnnl_acct_id,
+	 $utility, $first_choice, $second_choice)" || error="table update failed."
+	
+	if [ -z "$error" ]; then
+		echo "<h3><font color=blue>Customer no. $pnnl_acct_id updated ok</font></h3>"
+	else
+		echo "<h3><font color=red>Customer no. $pnnl_acct_id updated error ($error)</font></h3>"
+	fi
+fi
+
+echo '<h3>Existing customers [<a href="/cgi-bin/cust_pref.csv">Download to Excel</a>]</h3>'
+mysql -hollie -uolypen -ppower123 olypen --html -e "select 
+	concat(\"<form method=get>\",pnnl_acct_id) as 'Customer', 
+	updatetime as 'As of',  
+	concat(\"<input type=radio name=first_choice value=NULL \",if(first_choice is null,\"checked\",\"\"),\">None\",
+		\"<input type=radio name=first_choice value=FIXED \",if(first_choice=\"FIXED\",\"checked\",\"\"),\">Fixed\",
+		\"<input type=radio name=first_choice value=TOU \",if(first_choice=\"TOU\",\"checked\",\"\"),\">Time-of-use\",
+		\"<input type=radio name=first_choice value=RTP \", if(first_choice=\"RTP\",\"checked\",\"\"),\">Real-time\") as 'First choice', 
+	concat(\"<input type=radio name=second_choice value=NULL \",if(second_choice is null,\"checked\",\"\"),\">None\",
+		\"<input type=radio name=second_choice value=FIXED \",if(second_choice=\"FIXED\",\"checked\",\"\"),\">Fixed\",
+		\"<input type=radio name=second_choice value=TOU \",if(second_choice=\"TOU\",\"checked\",\"\"),\">Time-of-use\",
+		\"<input type=radio name=second_choice value=RTP \", if(second_choice=\"RTP\",\"checked\",\"\"),\">Real-time\") as 'Second choice', 
+	concat(\"<input type=text name=utility value=\",utility,\" maxlength=1 size=1>\") as 'Utility',
+	concat(\"<input type=hidden name=pnnl_acct_id maxlength=5 size=4 value=\",pnnl_acct_id,\"><input type=submit value=Set>\",
+		\"<input type=reset value=Reset></form>\") as ''
+	from cust_contract_preference order by updatetime desc"
+
+echo "<hr> <cite>Generated $(date +'%Y-%m-%d %H:%M') by http://$SERVER_NAME/$DOCUMENT_URI</cite> </body> </html>"
+
+if [ "$debug" == "yes" ]; then
+	echo "<pre>$(printenv)</pre>"
+fi

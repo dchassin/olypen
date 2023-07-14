@@ -1,0 +1,12 @@
+#!/bin/bash
+
+. $HOME/etc/gfanotify.conf
+
+MYSQL="mysql -hollie -P923 -uolypen -ppower123 olypen --batch -e"
+COUNT=$($MYSQL "select count(*) as '' from gridfreq where posttime > date_sub(now(),interval $BACK) and freq < $CUTOFF") 
+
+if [ $COUNT -gt 0 ]; then
+	SUB=$(date +"GFA event report for %m/%d/%Y %H:00")
+	MSG=$($MYSQL "select concat(sec_to_time(count(freq)/10),' below $CUTOFF Hz, minimum at ', floor(min(freq)*1000)/1000,' Hz') as '' from gridfreq where posttime > date_sub(now(),interval $BACK) and freq < $CUTOFF")
+	echo $MSG | mail -c "" -s "$SUB" $MAILTO
+fi

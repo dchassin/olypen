@@ -1,0 +1,6 @@
+Olympic Peninsula System
+
+Processes run by this userid
+1. Daily MIDC price updates (bin/readmidc)
+2. Hourly MIDC price posting (bin/nextmidc)
+3. Olypen feeder bid

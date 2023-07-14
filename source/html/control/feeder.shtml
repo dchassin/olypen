@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstation Project</title>
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<html>
+<!--#exec cmd="./navbar 'Feeder Control' Feeder"-->
+<form action="/cgi-bin/control_feeder" method="GET">
+
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select feeder_id as `Feeder`, posttime as `As of`,  concat(\"<input type=text name=capacity value=\",capacity,\" maxlength=5 size=5>\") as `Capacity<br>(kW)`, concat(\"<input type=radio name=status value=OK \",if(status=\"OK\",\"checked\",\"\"),\">OK<input type=radio name=status value=OFF \",if(status=\"OFF\",\"checked\",\"\"),\">Off\") as `Status`, concat(\"<input type=hidden name=feeder_id value=\",feeder_id,\"><input type=submit value=Set> <input type=reset value=Reset>\") as `` from olypen.feeder_status order by posttime desc limit 1' --html"-->
+
+</form>
+
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

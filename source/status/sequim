@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+# Olypen status check
+# DP Chassin
+# 11/2006
+
+$statfile = 'sequim.stat';
+
+use warnings;
+use Fcntl qw(:DEFAULT :flock);
+open(FH,"+< $statfile") or die "can't open $statfile $!";
+flock(FH,LOCK_SH) or die "can't lock $statfile $!";
+$/ = ' ';
+if (@last = <FH>) {
+	$lastmkt = int($last[0]);
+	$lastcnt = int($last[1]);
+}
+else {
+	$lastmkt = 0;
+	$lastcnt = 0;
+}
+
+use DBI;
+$dbh = DBI->connect("DBI:mysql:olypen","olypen","power123");
+
+#################################################################################33
+# read current quantity cleared
+$sth = $dbh->prepare("select mkt_id, count(*) from buy where buyer_id in (288,289) and  mkt_id=floor(unix_timestamp()/300) group by mkt_id")
+	or die "prepare failed: " . $dbh->errstr;
+$sth->execute() or die "execute failed: " . $sth->errstr;
+if (@stat = $sth->fetchrow_array())
+{
+	seek FH, 0, 0;
+	truncate FH, 0;
+	print FH "$stat[0] $stat[1]\n";
+}
+
+$msg = "";
+if ($stat[0]!=$lastmkt && $stat[1]!=$lastcnt) {
+	if ($lastcnt==2) { $msg = "Sequim bids ok";}
+	else { $msg = "Sequim bids missing ";}
+}
+
+if ($msg ne "") {
+	system('echo ' . $msg . ' | mail -s "Olypen market monitor" -c "" norman.carr@pnl.gov,5301010@pager.kelleyspagers.com');
+	print "$msg\n";
+}

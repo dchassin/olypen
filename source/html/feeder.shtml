@@ -1,0 +1,64 @@
+<html>
+<head>
+<!--#include file="title.conf"-->
+<meta http-equiv="expires" content="0">
+<!--#exec cmd="date +'<meta http-equiv=\"refresh\" content=\"'$(( ($(date +\"%s\")/300)*300+300 + 10 - $(date +\"%s\") ))'\">'"-->
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<body>
+<!--#exec cmd="./navbar 'Feeder operations' Feeder"-->
+<h2>Real-time Price History</h2>
+<table border=0 align=center>
+<tr><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;"> 
+<!--#exec cmd="./graph_price -8"-->
+</td><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;">
+<!--#exec cmd="./graph_price -7"-->
+</td><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;">
+<!--#exec cmd="./graph_price -6"-->
+</td><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;">
+<!--#exec cmd="./graph_price -5"-->
+</td><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;">
+<!--#exec cmd="./graph_price -4"-->
+</td><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;">
+<!--#exec cmd="./graph_price -3"-->
+</td><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;">
+<!--#exec cmd="./graph_price -2"-->
+</td><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;">
+<!--#exec cmd="./graph_price -1"-->
+</td><td style="background-color: white; vertical-align: bottom; text-align: left; margin: 0 0 0 0;" width=288>
+<!--#exec cmd="./graph_price -0"-->
+</tr><tr>
+<th valign=bottom><!--#exec cmd="./datecalc -$((8*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((7*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((6*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((5*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((4*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((3*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((2*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -86400 'Yesterday<br>%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc 0 'Today<br>%a<br>%m/%d'"--></th>
+</tr></table>
+</table>
+
+<table border=0 width="100%">
+<tr><td style="background-color: white; vertical-align: top; text-align: left">
+
+<h3>Feeder Status [<a href="control/feeder">Control</a>]</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select feeder_id as `Feeder`, capacity as `Capacity<br>(kW)`, status as `Status`, posttime as `As of` from olypen.feeder_status order by posttime desc limit 1' --html"-->
+
+
+</td><td style="background-color: white; vertical-align: top; text-align: left">
+
+<h3>Pending Requests</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select \"Buys\" as `Bid type`, count(*) as `Num recd`, date_format(min(posttime),\"%H:%i:%s\") as `First recd`, date_format(max(posttime),\"%H:%i:%s\") as `Last recd`, round(min(price),2) as `Lowest bid<br>($/MWh)`, round(max(price),2) as `Highest bid<br>($/MWh)`, round(sum(quantity),3) as `Total qty<br>(kW)` from olypen.buy where price<9999 and posttime > from_unixtime(floor(unix_timestamp(now())/300)*300) UNION select \"Sells\" as Type, count(*) as Pending, date_format(min(posttime),\"%H:%i:%s\") as First, date_format(max(posttime),\"%H:%i:%s\") as Last, round(min(price),2) as Lowest, round(max(price),2) as Highest, round(sum(quantity),3) as Quantity from olypen.sell where posttime > from_unixtime(floor(unix_timestamp(now())/300)*300) UNION select \"Load\" as Type, count(*) as Pending, date_format(min(posttime),\"%H:%i:%s\") as First, date_format(max(posttime),\"%H:%i:%s\") as Last, round(min(price),2) as Lowest, round(max(price),2) as Highest, round(sum(quantity),3) as Quantity from olypen.buy where price>=9999 and posttime > from_unixtime(floor(unix_timestamp(now())/300)*300)' --html"-->
+
+</tr><tr><td colspan=2 style="background-color: white; vertical-align: top; text-align: left">
+
+<h3>Past hour</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select date_format(posttime,\"%H:%i:%S\") as `Cleared at`, round(quantity,1) as `Quantity<br>(kW)`, round(price,2) as `Price<br>($/MWh)`, round((price-avg24)/std24,1) as `Daily sigma<br>(&sigma;)`, round((price-avg168)/std168,1) as `Weekly sigma<br>(&sigma;)`, round(avg24,2) as `Daily average<br>($/MWh)`, round(std24,2) as `Daily deviation<br>($/MWh)`, round(avg168,2) as `Weekly Average<br>($/MWh)`, round(std168,2) as `Weekly deviation<br>($/MWh)` from olypen.clear where posttime > date_sub(now(),interval 1 hour) order by posttime desc' --html"-->
+</tr></table>
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

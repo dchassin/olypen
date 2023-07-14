@@ -1,0 +1,14 @@
+#!/bin/bash
+
+LIST=$(cat $0.conf | grep -v '^#')
+echo "<H3 style='background-color: darkblue; color=white; text-align: left'>&nbsp;<b><i>$1</i></b><br>&nbsp;"
+for i in $LIST; do
+	A=$(echo "$i" | cut -f1 -d:)
+	B=$(echo "$i" | cut -f2 -d:)
+	if [ "$2" = "$A" ]; then
+		echo "&nbsp;<B style='background-color: white; color=darkblue'>&nbsp;$A&nbsp;</B>&nbsp;"
+	else
+		echo "&nbsp;<a href='$B' style='background-color: lightgrey; text-decoration: none; color=darkblue;'>&nbsp;$A&nbsp;</A>&nbsp;"
+	fi
+done
+echo "</H1>"

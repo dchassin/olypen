@@ -1,0 +1,18 @@
+#!/bin/gawk -f
+
+BEGIN {
+	datestamp="";
+	#system("mysql -uolypen -ppower123 -hlocalhost --batch -e 'select site from weather_sites'");
+}
+
+/^[0-9]/ {
+	gsub("/","-");
+	datestamp=$0;
+}
+
+/KPSC|KSEA/ {
+	printf ("%s %s\n",datestamp,$0);
+}
+
+{
+}

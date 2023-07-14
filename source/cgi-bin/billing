@@ -1,0 +1,38 @@
+#!/bin/bash
+
+eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+date=`echo $date | sed -e 's/[^-0-9]//g'`
+month=`echo $month | sed -e 's/[^-0-9]//g'`
+MYSQL="mysql -hollie -uolypen -ppower123 olypen -e"
+echo "Content-type: text/html"
+echo ""
+echo "<HTML><HEAD><link rel=stylesheet type=\"text/css\" href=\"/standard.css\"></HEAD><BODY>"
+
+if [ ! -z "$month" ]; then
+	
+	echo "<TABLE BORDER=1>"
+	echo "<TR><TH>Period</TH><TH>Revenue</TH><TH>Expense</TH><TH>Profit</TH><TH>Cleared</TH></TR>"
+	range=$($MYSQL "select concat('between ',min(mkt_id),' and ',max(mkt_id)) as '' from clear where date_format(posttime,'%Y-%m')='$month'")
+	expense=$($MYSQL "select round(sum(sell.quantity*clear.price/12000),2) as '' from sell join clear on floor(unix_timestamp(sell.posttime)/300) = clear.mkt_id where clear.mkt_id $range and sell.price <= clear.price")
+	revenue=$($MYSQL "select round(sum(demand*price/12000),2) as '' from cust_meter_trans join clear on floor(unix_timestamp(read_time)/300) = clear.mkt_id where clear.mkt_id $range")
+	period=$($MYSQL "select date_format(min(posttime),'%Y-%m') as '' from clear where mkt_id $range")
+	balance=$($MYSQL "select round($revenue-$expense,2) as ''")
+	count=$($MYSQL "select count(*) as '' from clear where mkt_id $range")
+	echo "<TR><TD>$period</TD><TD>$revenue</TD><TD>$expense</TD><TD>$balance</TD><TD>$count</TD></TR>"
+	echo "</TABLE>"
+elif [ ! -z "$date" ]; then
+	echo '<table border=0 width="100%">'
+	echo '<tr><td style="background-color: white; vertical-align: top; text-align: left">'
+	$MYSQL "select clear.posttime as 'Market cleared on', round(clear.price,2) as 'Clearing price<br>($/kWh)', round(sum(sell.quantity),1) as 'Cleared supply<br>(kW)', round(sum(sell.quantity*clear.price)/12000,2) as 'Cost<br>($)' from sell join clear on floor(unix_timestamp(sell.posttime)/300) = clear.mkt_id where to_days(clear.posttime) = to_days('$date') and sell.price <= clear.price group by clear.mkt_id order by clear.posttime asc" --html || error="billing query failed"
+	echo '</td><td style="background-color: white; vertical-align: top; text-align: left">'
+	$MYSQL "select round(sum(buy.quantity),1) as 'Cleared demand<br>(kW)', round(sum(buy.quantity*clear.price)/12000,2) as 'Revenue<br>($)' from buy join clear on floor(unix_timestamp(buy.posttime)/300) = clear.mkt_id where to_days(clear.posttime) = to_days('$date') and buy.price >= clear.price group by clear.mkt_id order by clear.posttime asc" --html || error="billing query failed"
+	echo '</td></tr>'
+	echo '</table>'
+else
+	error="invalid request"
+fi
+
+if [ ! -z "$error" ]; then
+	echo "<h1>Error</h1><h2>Report is '$error'</h2>"
+fi
+echo "<HR></BODY></HTML>"

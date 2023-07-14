@@ -1,0 +1,34 @@
+#!/bin/bash
+eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+capacity_kw=`echo $capacity_kw | sed -e 's/[^0-9]//g'`
+unit_id=`echo $unit_id | sed -e 's/[^0-9]//g'`
+
+if [ -z "$capacity_kw" ]; then
+	error="capacity_kw is not a valid number"
+elif [ -z "$unit_id" ]; then
+	error="unit id is not a valid number"
+elif [ "$state" != "OFF" -a "$state" != "RDY" -a "$state" != "RUN" ]; then
+	error="state is not valid"
+fi
+
+
+if [ -z "$error" ]; then
+	oldstate=$(mysql -hollie -uolypen -ppower123 olypen --batch -e "select state as '' from dg where unit_id=$unit_id") || error='State query failed.'
+fi
+if [ -z "$error" ]; then
+	if [ "$oldstate" == "$state" ]; then
+		mysql -hollie -uolypen -ppower123 olypen -e "update dg set capacity_kw=$capacity_kw where unit_id=$unit_id" || error="Update failed."
+	else
+		mysql -hollie -uolypen -ppower123 olypen -e "update dg set statechange_time=now(), capacity_kw=$capacity_kw, state='$state' where unit_id=$unit_id" || error="Update failed."
+	fi
+fi
+
+echo "Content-type: text/html"
+echo ""
+echo "<HTML><HEAD><META HTTP-EQUIV=refresh CONTENT=\"5;URL=/olypen/control/dg\"><link rel=stylesheet type=\"text/css\" href=\"/standard.css\"></HEAD><BODY>"
+if [ ! -z "$error" ]; then
+	echo "<h1>Generation control error</h1><h2>Report is '$error'.</h2>"
+else
+	echo "<h1>Generation control ok</h1><h2>Update succeeded</h2>"
+fi
+echo "<HR>Returning to <a href=\"/olypen/control/dg\">control panel</a> in 5 seconds...</BODY></HTML>"

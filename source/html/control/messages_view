@@ -1,0 +1,35 @@
+#!/bin/gawk -f
+
+BEGIN {
+	printf "<table><tr>"
+	printf "<td style='background-color: white; text-align: left; vertical-align: top'><b>Message %s</b>:</td>", msg;
+	if (msg>1) printf "<td style='background-color: white; text-align: center'><form method=get><input type=hidden name=msg value=%s><input type=hidden name=action value=View><input type=submit value=Previous></form></td>", msg-1;
+	printf "<td style='background-color: white; text-align: center'><form method=get><input type=hidden name=msg value=%s>", msg;
+	printf "<input type=hidden name=form value=view><input type=submit name=action value=Delete>";
+	printf "</form></td>";
+	printf "<td style='background-color: white; text-align: center'><form method=get><input type=hidden name=msg value=%s><input type=hidden name=action value=View><input type=submit value=Next></form><td>", msg+1;
+	printf "<td style='background-color: white; text-align: center'><form method=get><input type=submit value=Browse></form></td>";
+	printf "</tr></table>";
+	printf "<pre>";
+	if (msg==0)
+		msg=1;
+	msgnum=0;
+	found=0;
+}
+
+/^From / {
+	msgnum=msgnum+1;
+}
+
+{
+	if ( msgnum == msg ) {
+		found=1;
+		printf "%s\n", $0;
+	}
+}
+
+END {
+	if ( found == 0 )
+		printf "No such message."
+	printf "</pre>"
+}

@@ -1,0 +1,23 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstration Project</title>
+<meta http-equiv="expires" content="0">
+<meta http-equiv="refresh" content="60">
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<body>
+<!--#exec cmd="./navbar 'Grid Friendly<sup>TM</sup> Appliance Status' GFA"-->
+<table style="border: 0; text-align: left; background-color: white;">
+<tr><td style="vertical-align: top; text-align: left; background-color: white;">
+<h2>Events in the past week</h2>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select date_format(min(posttime),\"%m/%d %H:%i\") as \"Event Time<br>(GMT)\", sec_to_time(count(*)/10) as \"Duration<br> (&le; 59.950 Hz)\", concat(\"<a href=/cgi-bin/browse_freq\?VIEW=MINUTE&DAY=\",to_days(posttime),\"\&HOUR=\",hour(posttime),\"&MINUTE=\",minute(posttime),\">\",round(min(freq),3),\"</a>\") as \"Min freq<br>(Hz)\", \"(NA)\" as \"Responses\", \"(NA)\" as \"Load shed<BR>(kW)\" from olypen.gridfreq where posttime > date_sub(now(),interval 7 day) and freq <= 59.95 group by floor(readtime/3600) having count(*) >= 10 order by posttime desc' --html"-->
+</td><td style="text-align: left; background-color: white;">
+<!--#exec cmd="./graph_freq"-->
+<a href="/cgi-bin/browse_freq?VIEW=DAY&DAY=">Browser</a>
+</td></tr>
+</table>
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

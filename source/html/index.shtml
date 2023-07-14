@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>Olympic Peninsula Server Status</title>
+<!--#exec cmd="date +'<meta http-equiv=\"refresh\" content=\"'$(( ($(date +\"%s\")/60)*60+60 + 10 - $(date +\"%s\") ))'\">'"-->
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<html>
+<!--#exec cmd="./navbar 'Olympic Peninsula Demonstration Project' Main"-->
+<style>
+td {background-color: transparent}
+</style>
+<table border=0 width=800 align=center>
+<tr>
+	<th>Server</th>
+	<th>Market</th>
+	<th>Supply</th>
+	<th>Customers</th>
+	<th>GFA</th>
+</tr><tr>
+	<!--#exec cmd="./status server"-->
+	<!--#exec cmd="./status market"-->
+	<!--#exec cmd="./status supply"-->
+	<!--#exec cmd="./status customers"-->
+	<!--#exec cmd="./status gfa"-->
+</tr>
+</table>
+<table border=0 background="map.gif" width=800 height=600 align=center>
+<tr>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+</tr>
+<tr>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%>
+		<font color=yellow><!--#exec cmd="./bar clallam"--></font>
+	</td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+</tr>
+<tr>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%>		
+	</td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+</tr>
+<tr>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%>
+		<font color=yellow><!--#exec cmd="./bar yakima"--></font>
+	</td>
+</tr>
+<tr>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%>
+		<font color=yellow><!--#exec cmd="./bar gresham"--></font>
+	</td>
+	<td width="20%" height=20%></td>
+	<td width="20%" height=20%></td>
+</tr>
+</table>
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstation Project</title>
+<link rel="stylesheet" type="text/css" href="standard.css">
+</head>
+<html>
+<!--#exec cmd="./navbar 'Project Control' Main"-->
+<h1>Warning!</h1>
+From this page you have control over the operation of the project.  Please proceed with caution.
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

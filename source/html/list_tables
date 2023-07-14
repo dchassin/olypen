@@ -1,0 +1,29 @@
+#!/bin/bash 
+
+SQL=$(mysql -hollie -uolypen -ppower123 -e "show table status from $1" --html | sed -s 's/<TD><\/TD>/<TD>\&nbsp;<\/TD>/g' || exit)
+
+# output HTML source
+echo $SQL | sed -s 's/<TR><TD>[^<]*<\/TD>/\n&\n/g' | sed -s 's/^<TR><TD>/<TR><TD STYLE="text-align: left">\n/g' | sed -s 's/<\/TD>$/\n&/g' | sed -s 's/^[A-Za-z0-9_]*$/<A HREF=\"mysql\/'$1'\/&.shtml\">&<\/A>/g'
+
+# output HTML target
+TBL=$(echo $SQL | sed -s 's/<TR><TD>[^<]*<\/TD>/\n&\n/g' | sed -s 's/^<TR><TD>/&\n/g' | sed -s 's/<\/TD>$/\n&/g' | grep '^[A-Za-z0-9_]*$')
+
+mkdir -p mysql/$1
+chmod 2777 mysql/$1
+for t in $TBL; do
+	F="mysql/$1/$t.shtml"
+	if [ -f $F -o $0 -nt $F ]; then
+		echo '<html> <head> <title>'$1.$t'</title>
+			<link rel="stylesheet" type="text/css" href="/standard.css">
+			<meta http-equiv="expires" content="0">
+			</head> <body> <h1>'$1.$t'</h1>' >$F
+		echo '<h3>Columns</h3>' >>$F
+		echo "<!--#exec cmd=\"mysql -hollie -uolypen -ppower123 -e 'show columns from $1.$t' --html | sed -s 's/<TD><\/TD>/<TD>\&nbsp;<\/TD>/g'\"-->" >>$F
+		echo '<h3>Indexes</h3>' >>$F
+		echo "<!--#exec cmd=\"mysql -hollie -uolypen -ppower123 -e 'show index from $1.$t' --html | sed -s 's/<TD><\/TD>/<TD>\&nbsp;<\/TD>/g'\"-->"  >>$F
+		echo '<h3>Sample</h3>' >>$F
+		echo "<!--#exec cmd=\"mysql -hollie -uolypen -ppower123 -e 'select * from $1.$t limit 100' --html\"-->" >>$F
+		echo '<HR><cite>Generated <!--#exec cmd="date"-->' >>$F
+		echo '</body></html>' >>$F
+	fi
+done

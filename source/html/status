@@ -1,0 +1,79 @@
+#!/bin/bash
+
+MYSQL="mysql -hollie -uolypen -ppower123 olypen --batch -e"
+
+if [ -f /var/lock/daily.lck ]; then
+	exit
+fi
+
+case $1 in
+server)
+	t=$($MYSQL "select sec_to_time(unix_timestamp()-unix_timestamp(max(posttime))) as '' from clear")
+	message="<b>$t</b><br>since update"
+	n_sec=`echo $($MYSQL "select unix_timestamp()-unix_timestamp(max(posttime)) as '' from clear")`
+	if [ $n_sec -le 300 ]; then
+		color="lightgreen";
+	elif [ $n_sec -le 600 ]; then
+		color="yellow";
+	else
+		color="red";
+	fi
+	;;
+market) 
+	n_hour=`echo $($MYSQL "select count(*) as '' from clear where price = 9999 and posttime > date_sub(now(),interval 1 hour);")`
+	n_day=`echo $($MYSQL "select count(*) as '' from clear where price = 9999 and posttime > date_sub(now(),interval 1 day);")`
+	n_week=`echo $($MYSQL "select count(*) as '' from clear where price = 9999 and posttime > date_sub(now(),interval 7 day);")`
+	n_month=`echo $($MYSQL "select count(*) as '' from clear where price = 9999 and posttime > date_sub(now(),interval 30 day);")`
+	if [ n_hour -gt 0 ]; then
+		color="red";
+	elif [ n_dat -gt 0 ]; then
+		color="yellow";
+	else
+		color="lightgreen";
+	fi
+	message="Failures: <b>$n_hour</b>/hour; <b>$n_day</b>/day; <b>$n_week</b>/week; <b>$n_month</b>/month"
+	;;
+
+supply)
+	n_on=`echo $($MYSQL "select count(*) as '' from supplier where rec_id in (select distinct seller_id  from sell where mkt_id=floor(unix_timestamp()/300));")`
+	n_tot=`echo $($MYSQL "select count(*) as '' from supplier;")`
+	if [ $n_on -eq 0 ]; then
+		color="red"
+	elif [ $n_on -eq $n_tot ]; then
+		color="lightgreen"
+	else
+		color="yellow"
+	fi
+	message="<b>$n_on</b> active of<br><b>$n_tot</b> registered"
+	;;
+customers)
+	n_on=`echo $($MYSQL "select count(*) as '' from customer where rec_id in (select distinct buyer_id  from buy where mkt_id=floor(unix_timestamp()/300));")`
+	n_tot=`echo $($MYSQL "select count(*) as '' from customer;")`
+	if [ $n_on -eq 0 ]; then
+		color="red"
+	elif [ $n_on -eq $n_tot ]; then
+		color="lightgreen"
+	else
+		color="yellow"
+	fi
+	message="<b>$n_on</b> active of<br><b>$n_tot</b> registered"
+	;;
+gfa)
+	t=$($MYSQL "select sec_to_time(unix_timestamp()-unix_timestamp(max(posttime))) as '' from gridfreq")
+	message="<b>$t</b><br>since update"
+	n_sec=`echo $($MYSQL "select unix_timestamp()-unix_timestamp(max(posttime)) as '' from gridfreq")`
+	if [ $n_sec -le 60 ]; then
+		color="lightgreen";
+	elif [ $n_sec -le 300 ]; then
+		color="yellow";
+	else
+		color="red";
+	fi
+	;;
+
+*)
+	color="lightgrey";
+	message="(na)"
+esac
+
+echo "<td style=\"background-color: $color; text-align: center\">$message</td>"

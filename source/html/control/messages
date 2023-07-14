@@ -1,0 +1,24 @@
+#!/bin/bash
+
+parms="${QUERY_STRING//&/;}"
+eval $parms
+
+if [ ! -z "$mail" -a "$mail" = "Clear all" ]; then
+	cp /dev/null /var/spool/mail/olypen
+elif [ -z "$msg" ]; then
+	echo "<h1><form action='$DOCUMENT_URI' method=get>Mail messages <input type=submit name=mail value='Clear all'></form></h1>"
+	./messages_summary </var/spool/mail/olypen
+else
+	if [ -z "$action" ]; then
+		echo "No action requested"
+	elif [ "$action" == "View" ]; then
+		./messages_view -v msg=$msg </var/spool/mail/olypen
+	elif [ "$action" == "Delete" ]; then
+		mv /var/spool/mail/olypen /tmp/$$
+		./messages_delete -v msg=$msg </tmp/$$ >>/var/spool/mail/olypen
+		./messages_$form -v msg=$(($msg-1)) </var/spool/mail/olypen
+	else
+		echo "Invalid action"
+	fi
+fi	
+

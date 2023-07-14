@@ -1,0 +1,46 @@
+<html>
+<head>
+<!--#include file="title.conf"-->
+<meta http-equiv="expires" content="0">
+<!--#exec cmd="date +'<meta http-equiv=\"refresh\" content=\"'$(( ($(date +\"%s\")/60)*60+60 + 10 - $(date +\"%s\") ))'\">'"-->
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<body>
+<!--#exec cmd="./navbar 'Customer equipment status' Customer"-->
+
+<table border=3 width="100%">
+<tr><th width="15%">Meter</th><th width="15%">Bid</th><th width="15%">HVAC</th><th width="15%">Hotwater</th><th width="15%">Dryer</th><th width="15%">GFA</th></tr>
+<td style="vertical-align: top">
+<center>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select count(*) as `` from cust_meter_trans where read_time between from_unixtime(floor(unix_timestamp()/300-1)*300) and from_unixtime(floor(unix_timestamp()/300)*300)' --batch"-->
+of
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select count(*) as `` from customer' --batch"-->
+active<br>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT invensys_acct_id as `Invensys ID`, date_format(max(read_time),\"%m/%d&nbsp;%H:%i\") as `Last meter report`, sec_to_time(unix_timestamp()-unix_timestamp(max(read_time))) as `Meter Age` FROM cust_meter_trans join customer on cust_meter_trans.cust_id=customer.rec_id where read_time > date_sub(now(),interval 1 day) group by cust_id having unix_timestamp()-unix_timestamp(max(read_time)) > 300 order by read_time asc, cust_id asc' --html"-->
+</td>
+<td style="vertical-align: top">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select concat(\"<center>\",count(*),\" received</center>\") as `` from buy where posttime between from_unixtime(floor(unix_timestamp()/300-1)*300) and from_unixtime(floor(unix_timestamp()/300)*300)' --batch"-->
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(from_unixtime(-mkt_id*300),\"%m/%d %H:%i\") as `Market time`, date_format(min(posttime),\"%H:%i:%s\") as `First bid`, date_format(max(posttime),\"%H:%i:%s\") as `Last bid`,  count(*) as `Rejected` from buy where mkt_id < 0 group by mkt_id limit 10' --html"-->
+</td>
+<td style="vertical-align: top">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select concat(\"<center>\",count(*),\" received</center>\") as `` from cust_tstat_trans where read_time between from_unixtime(floor(unix_timestamp()/300-1)*300) and from_unixtime(floor(unix_timestamp()/300)*300)' --batch"-->
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT invensys_acct_id as `Invensys ID`, date_format(max(read_time),\"%m/%d %H:%i\") as `Last meter report`, sec_to_time(unix_timestamp()-unix_timestamp(max(read_time))) as `Meter Age` FROM cust_tstat_trans where read_time > date_sub(now(),interval 1 day) group by invensys_acct_id having unix_timestamp()-unix_timestamp(max(read_time)) > 300 order by read_time asc, invensys_acct_id asc' --html"-->
+</td>
+<td style="vertical-align: top">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select concat(\"<center>\",count(*),\" received</center>\") as `` from cust_wh_trans where read_time between from_unixtime(floor(unix_timestamp()/300-1)*300) and from_unixtime(floor(unix_timestamp()/300)*300)' --batch"-->
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT invensys_acct_id as `Invensys ID`, date_format(max(read_time),\"%m/%d %H:%i\") as `Last meter report`, sec_to_time(unix_timestamp()-unix_timestamp(max(read_time))) as `Meter Age` FROM cust_wh_trans where read_time > date_sub(now(),interval 1 day) group by invensys_acct_id having unix_timestamp()-unix_timestamp(max(read_time)) > 300 order by read_time asc, invensys_acct_id asc' --html"-->
+</td>
+<td style="vertical-align: top">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select concat(\"<center>\",count(*),\" received</center>\") as `` from cust_dryer_trans where read_time between from_unixtime(floor(unix_timestamp()/300-1)*300) and from_unixtime(floor(unix_timestamp()/300)*300)' --batch"-->
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT invensys_acct_id as `Invensys ID`, date_format(max(read_time),\"%m/%d %H:%i\") as `Last meter report`, sec_to_time(unix_timestamp()-unix_timestamp(max(read_time))) as `Meter Age` FROM cust_dryer_trans where read_time > date_sub(now(),interval 1 day) group by invensys_acct_id having unix_timestamp()-unix_timestamp(max(read_time)) > 300 order by read_time asc, invensys_acct_id asc' --html"-->
+</td>
+<td style="vertical-align: top">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select concat(\"<center>\",count(*),\" received</center>\") as `` from cust_gfa_trans where read_time between from_unixtime(floor(unix_timestamp()/300-1)*300) and from_unixtime(floor(unix_timestamp()/300)*300)' --batch"-->
+</td>
+</tr>
+</table>
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ $(whoami) != 'root' ]; then
+	echo "must be run as root"
+	exit
+fi
+
+DIRLIST="/var/run/olypen /var/log/olypen"
+mkdir -p $DIRLIST
+chown olypen.olypen $DIRLIST
+chmod 755 $DIRLIST
+
+echo "Olypen files are ready"

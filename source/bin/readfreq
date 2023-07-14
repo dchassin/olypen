@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# basic configuration
+ETC="$HOME/etc"
+PIDDIR="/var/run/olypen"
+DATADIR="$HOME/raw/freq"
+DATA="$DATADIR/current.sql"
+LOCKOUT="$HOME/lck/readfreq.lck"
+CONFIGFILE="$ETC/readfreq.conf"
+. $ETC/logger.conf
+
+# default configuration
+SERVER="gridmon2.pnl.gov"
+PORT=3530
+SAVEDATA="/usr/bin/mysql -w -ppower123 olypen"
+SAMPLES=600
+RETRY_WAIT=10
+
+function on_signal () {
+	$LOGGER_NOTICE "exiting"
+	savedata
+	rm $PIDFILE
+	exit 0
+}
+
+function savedata () {
+	if [ -f $DATA ]; then
+		($SAVEDATA <$DATA && rm $DATA) 2>&1 | $LOGGER_ERROR
+	fi
+	if [ -f $DATA ]; then
+		F=$DATADIR/$(date +'%Y%m%d.sql')
+		$LOGGER_ERROR "data transfer to mysql failed; saving data in $F"
+		cat $DATA >>$F && rm $DATA
+	else # succeeded, try to do the delayed ones too
+		$LOGGER_DEBUG "data transferred to mysql ok" 
+		L=$(echo $DATADIR/*.sql)
+		if [ ! -z "$L" ]; then
+			for f in $L; do
+				if [ -f $f ]; then
+					($SAVEDATA <$f && rm $f) 2>&1 | $LOGGER
+					if [ ! -f $f ]; then
+						$LOGGER_DEBUG "delayed transfer of $f succeeded" 
+					fi
+				fi
+			done
+		fi
+	fi
+}
+
+# read configuration file
+if [ -f $CONFIGFILE ]; then
+	. $CONFIGFILE
+fi
+IP=$(host $SERVER | cut -f4 -d' ')
+
+# check PID directory first
+if [ ! -d $PIDDIR ]; then
+	$LOGGER_ERROR "directory $PIDDIR does not exist!"
+	exit 1
+fi
+
+# see if readfreq is already running
+PIDFILE="$PIDDIR/readfreq.pid"
+if [ -f $PIDFILE ]; then
+	PID=$(< $PIDFILE)
+	if [ ! -z "$PID" -a $PID -gt 0 ]; then
+		PS=$(ps -o "%c" --no-headers $PID)
+		if [ ! -z "$PS" -a "$PS" == 'readfreq' ]; then
+			if [ -f $LOCKOUT ]; then
+				$LOGGER_DEBUG "lockout received: $(< $LOCKOUT)"
+				$LOGGER_DEBUG "killing readfreq pid=$PID"
+				kill $PID
+			else
+				$LOGGER_DEBUG "status checkup ok"
+			fi
+			exit
+		fi
+	fi
+fi
+
+# check lockout
+if [ -f $LOCKOUT ]; then
+	$LOGGER_DEBUG "locked out: $(< $LOCKOUT)"
+	exit 0
+fi
+
+# it's not running, so start it
+echo $$ >$PIDFILE
+trap on_signal EXIT 
+
+# begin sampling data
+$LOGGER_INFO "connecting to $SERVER:$PORT"
+while [ ! -f $LOCKOUT ]; do
+	$HOME/bin/samplefreq -$SAMPLES --sql </dev/tcp/$SERVER/$PORT 1>>$DATA 2>/tmp/$$.err || ($LOGGER_ERROR "connection lost, reconnecting to $SERVER:$PORT in $RETRY_WAIT seconds"; sleep $RETRY_WAIT)
+
+	# log errors, if any
+	if [ -s /tmp/$$err ]; then
+		$LOGGER_ERROR $(</tmp/$$.err)
+		rm /tmp/$$.err
+	fi
+
+	# save the current data
+	savedata 
+
+	# automatically reload config if changed since startup/last reload
+	if [ $CONFIGFILE -nt $PIDFILE ]; then
+		. $CONFIGFILE
+		touch $PIDFILE
+	fi
+
+	# update last complete log
+	echo "$(date +'%Y-%m-%d %H:%M:%S %Z'): $SERVER:$PORT -> olypen:gridfreq" >$HOME/log/readfreq.log
+done
+
+$LOGGER_NOTICE "lockout received: $(< $LOCKOUT)"
+exit 0

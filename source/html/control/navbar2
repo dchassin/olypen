@@ -1,0 +1,10 @@
+#!/bin/bash
+
+LIST=$(cat $0.conf | grep -v '^#')
+echo "<H1 style='text-align: left'>$1<br>&nbsp;"
+for i in $LIST; do
+	A=$(echo $i | cut -f1 -d:)
+	B=$(echo $i | cut -f2 -d:)
+	echo "&nbsp;<a href='$B'>$A</A>&nbsp;"
+done
+echo "&nbsp;</H1>"

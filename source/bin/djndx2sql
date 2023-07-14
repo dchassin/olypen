@@ -1,0 +1,64 @@
+#!/bin/gawk -f
+
+
+BEGIN {
+	FS=";"
+	printf("REPLACE INTO midc (report_time, report_type, report_value) VALUES");	
+	rn = 0;
+	codes["Firm (Peak)"] = "FP";
+	codes["Non-Firm (Peak)"]= "NFP";
+	codes["Firm (Off-Peak)"]= "FOP";
+	codes["Non-Firm (Off-Peak)"]= "NFOP";
+	codes["Sunday"] = "SUND";
+	codes["Hourly"] = "HRLY";
+	codes["On-Peak Average(7-22)"] = "PKAV";
+	codes["Off-Peak(1-6,23-24)"] = "OPAV";
+	month["Jan"] = "01";
+	month["Feb"] = "02";
+	month["Mar"] = "03";
+	month["Apr"] = "04";
+	month["May"] = "05";
+	month["Jun"] = "06";
+	month["Jul"] = "07";
+	month["Aug"] = "08";
+	month["Sep"] = "09";
+	month["Oct"] = "10";
+	month["Nov"] = "11";
+	month["Dec"] = "12";
+}
+
+{
+	if ($5=="DJPrice")
+	ndf=split($1,dmy," ");
+	if ($6=="NO INDEX" || codes[$2]=="")
+	{
+		# ignore record
+	}
+	else if (ndf==3)
+	{
+		dt=sprintf("%s-%s-%s",dmy[3], month[dmy[2]], dmy[1]);
+		if (rn>0) printf(",\n"); else printf("\n");
+		printf("  ('%s','%s',%s)", dt, codes[$2], $6);
+		rn++;
+	}
+	else if (ndf==4 && $5=="DJPrice")
+	{
+		ntf=split(dmy[4],hm,":");
+		if (ntf==2)
+		{
+			h=hm[1];
+			if (h==0) 
+				h=23; #YES! this is correct, the 0h entry is actually the 24h of that day but comes first!?!?
+			else 
+				h=h-1;
+			dt=sprintf("%s-%s-%s %s:00",dmy[3], month[dmy[2]], dmy[1], h);
+			if (rn>0) printf(",\n"); else printf("\n");
+			printf("  ('%s','%s',%s)", dt, codes[$2], $6);
+			rn++;
+		}
+	}
+}
+
+END {
+	printf(";\n");
+}

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+SELECT date_format(posttime,"%m/%d %H:00"), min(freq)
+FROM `gridfreq`
+where posttime > date_sub(now(),interval 15 day)
+group by date_format(posttime,"%Y%m%d%H")
+order by posttime
+

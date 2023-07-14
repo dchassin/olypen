@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+#
+use DBI;
+
+$dbh = DBI->connect("DBI:mysql:olypen","olypen","power123");
+
+# get list of customers
+$st1 = $dbh->prepare('select pnnl_acct_id from customer where invensys_acct_id is not NULL and pnnl_acct_id is not NULL order by pnnl_acct_id')
+	or die "couldn't prepare query for customer list: " . $dbh->errstr;
+$st1->execute() or die "couldn't execute customer list query: " . $st1->errstr;
+
+while (@acct = $st1->fetchrow_array()) {
+	$st2 = $dbh->prepare('select hdh, kwh_usage/billing_days*days from cust_billing_history join weather_degree_month using (billing_month) where pnnl_acct_id = ' . $acct[0]) or die "couldn't prepare customer usage query: " . $dbh->errstr;
+	$st2->execute() or die "couldn't execute customer usage query: " . $st2->errstr;
+	$sumx = 0;
+	$sumy = 0;
+	$count = 0;
+	while (@data = $st2->fetchrow_array()) {
+		$sumx += $data[0];
+		$sumy += $data[1];
+		$count++;
+	}
+	if ($count>0) {
+		$avgx = $sumx/$count;
+		$avgy = $sumy/$count;
+		$sumxy = 0;
+		$sum2x = 0;
+		$st2 = $dbh->prepare('select hdh, kwh_usage/billing_days*days from cust_billing_history join weather_degree_month using (billing_month) where pnnl_acct_id = ' . $acct[0]) or die "couldn't prepare customer usage query: " . $dbh->errstr;
+		$st2->execute() or die "couldn't execute customer usage query: " . $st2->errstr;
+		while (@data = $st2->fetchrow_array()) {
+			$sumxy += ($data[0] - $avgx) * ($data[1] - $avgy);
+			$sum2x += ($data[0] - $avgx) * ($data[0] - $avgx);
+		}
+		if ($sum2x>0) {
+			$b = $sumxy / $sum2x;
+			$a = $avgy - $b * $avgx;
+			$query = sprintf 'REPLACE INTO cust_usage_model (pnnl_acct_id,kwh_base,kwh_per_hdh,kwh_stdev,samples,updated) VALUES (%d, %.0f, %.4f, %.0f, %d, now())', $acct[0],$a,$b,sqrt($sum2x/($count-1)),$count;
+			$ins = $dbh->prepare($query) or die "Couldn't prepare insert into cust_usage_model: " . $dbh->errstr;
+			$ins->execute() or die "Couldn't execute insert into sell: " . $sub->errstr;
+		}
+	}
+}
+
+exit;
+

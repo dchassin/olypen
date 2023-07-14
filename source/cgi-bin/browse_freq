@@ -1,0 +1,147 @@
+#!/bin/bash
+
+MYSQL="mysql -hollie -uolypen -ppower123 --batch -e"
+VARS=${QUERY_STRING//%../}
+eval ${VARS//&/;}
+CUTOFF=59.950
+echo "Content-type: text/html"
+echo ""
+echo "<HTML><HEAD>"
+echo "<BASE HREF=\"http://$(hostname)/\">"
+echo "</HEAD><BODY>"
+#echo "<PRE>"; set; echo "</PRE>"
+TODAY=`echo $($MYSQL "select to_days(now()) as ''")`
+if [ -z "$DAY" ]; then
+	DAY=$TODAY
+fi
+case $VIEW in
+WEEK)
+        NEXT=$(($DAY+7))
+        PREV=$(($DAY-7))
+	echo "<CENTER><I>Minimum daily frequency observed</I></CENTER>"
+        echo "<TABLE ALIGN=center><TR>"
+        echo "<TD HEIGHT=200 VALIGN=center>60&nbsp;Hz-</TD>"
+        GRAPH=$(echo $(mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT
+                concat('<TD VALIGN=bottom ALIGN=center><font size=1>',if(min(freq)<$CUTOFF,concat(round(min(freq),3),'<br>'),''),'</font><a href=\"/cgi-bin/browse_freq?VIEW=DAY&DAY=$DAY\"><img border=0 src=',if(min(freq)<$CUTOFF,'red.bmp','green.bmp'),' width=30 height=',round((min(freq)-60)*1000+100,0),' alt=',date_format(posttime,'%a %m/%d&nbsp;=&nbsp;'),round(min(freq),3),'Hz></a></TD>') as ''
+                FROM gridfreq
+                where posttime between from_days($DAY-7) and from_days($DAY+1)
+                group by to_days(posttime)
+                order by posttime"))
+        echo "$GRAPH" | sed -s 's/> </></g'
+        echo "<TD></TD></TR><TR><TD></TD>"
+        LABEL=$(echo $(mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT
+                concat('<TD VALIGN=bottom ALIGN=center>',date_format(posttime,\"%m/%d\"),'</TD>') as ''
+                FROM gridfreq
+                where posttime between from_days($DAY-7) and from_days($DAY+1)
+                group by to_days(posttime)
+                order by posttime"))
+        echo "$LABEL" | sed -s 's/> </></g'
+        echo "<TD></TD></TR><TR><TD><a href=\"/cgi-bin/browse_freq?VIEW=WEEK&DAY=$((TODAY-7))\">Today</a></TD>"
+        echo "<TD COLSPAN=2 ALIGN=left><A HREF='/cgi-bin/browse_freq?VIEW=WEEK&DAY=$PREV'>Previous</A></TD><TD COLSPAN=20 ALIGN=center>"
+        mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT date_format(from_days($DAY),'%a %b %e, %Y') as ''"
+        if [ $DAY = $TODAY ]; then
+                echo "</TD><TD COLSPAN=2></TD>"
+        else
+                echo "</TD><TD COLSPAN=2 ALIGN=right><A HREF='/cgi-bin/browse_freq?VIEW=WEEK&DAY=$NEXT'>Next</A></TD>"
+        fi
+        echo "</TR></TABLE>"
+	;;
+DAY)
+	NEXT=$(($DAY+1))
+	PREV=$(($DAY-1))
+	echo "<CENTER><I>Minimum hourly frequency observed</I></CENTER>"
+	echo "<TABLE ALIGN=center><TR>"
+	echo "<TD HEIGHT=200 VALIGN=center>60&nbsp;Hz-</TD>"
+	GRAPH=$(echo $(mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT 
+		concat('<TD VALIGN=bottom ALIGN=center><font size=1>',if(min(freq)<$CUTOFF,concat(round(min(freq),3),'<br>'),''),'</font><a href=\"/cgi-bin/browse_freq?VIEW=HOUR&DAY=$DAY&HOUR=',hour(posttime),'\"><img border=0 src=',if(min(freq)<$CUTOFF,'red.bmp','green.bmp'),' width=30 height=',round((min(freq)-60)*1000+100,0),' alt=',date_format(posttime,'%H:%i&nbsp;=&nbsp;'),round(min(freq),3),'Hz></a></TD>') as ''
+		FROM gridfreq
+		where posttime between from_days($DAY) and from_days($DAY+1)
+		group by hour(posttime)
+		order by posttime"))
+	echo "$GRAPH" | sed -s 's/> </></g'
+	echo "<TD></TD></TR><TR><TD></TD>"
+	LABEL=$(echo $(mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT
+		concat('<TD VALIGN=bottom ALIGN=center>',date_format(posttime,\"%H:00\"),'</TD>') as ''
+		FROM gridfreq
+		where posttime between from_days($DAY) and from_days($DAY+1)
+		group by hour(posttime)
+		order by posttime"))
+	echo "$LABEL" | sed -s 's/> </></g'
+	echo "<TD></TD></TR><TR><TD><a href=\"/cgi-bin/browse_freq?VIEW=WEEK&DAY=$DAY\">Week</a></TD>"
+	echo "<TD COLSPAN=2 ALIGN=left><A HREF='/cgi-bin/browse_freq?VIEW=DAY&DAY=$PREV'>Previous</A></TD><TD COLSPAN=20 ALIGN=center>"
+	mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT date_format(from_days($DAY),'%a %b %e, %Y') as ''"
+	if [ $DAY = $TODAY ]; then
+		echo "</TD><TD COLSPAN=2></TD>"
+	else
+		echo "</TD><TD COLSPAN=2 ALIGN=right><A HREF='/cgi-bin/browse_freq?VIEW=DAY&DAY=$NEXT'>Next</A></TD>"
+	fi
+	echo "</TR></TABLE>"
+	;;
+HOUR)
+	echo "<CENTER><I>Minimum frequency observed by minute</I></CENTER>"
+        echo "<TABLE ALIGN=center><TR>"
+        echo "<TD HEIGHT=200 VALIGN=center>60&nbsp;Hz-</TD>"
+        GRAPH=$(echo $(mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT
+                concat('<TD VALIGN=bottom ALIGN=center><font size=1>',if(min(freq)<$CUTOFF,concat(round(min(freq),3),'<br>'),''),'</font><a href=\"/cgi-bin/browse_freq?VIEW=MINUTE&DAY=$DAY&HOUR=',hour(posttime),'&MINUTE=',minute(posttime),'\"><img border=0 src=',if(min(freq)<$CUTOFF,'red.bmp','green.bmp'),' width=20 height=',round((min(freq)-60)*1000+100,0),' alt=',date_format(posttime,'%H:%i&nbsp;=&nbsp;'),round(min(freq),3),'Hz></a></TD>') as ''
+                FROM gridfreq
+                where posttime between from_days($DAY) and from_days($DAY+1) and hour(posttime)=$HOUR
+                group by minute(posttime)
+                order by posttime"))
+        echo "$GRAPH" | sed -s 's/> </></g'
+        echo "<TD></TD></TR><TR><TD></TD>"
+        LABEL=$(echo $(mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT
+                concat('<TD VALIGN=bottom ALIGN=left colspan=10>',date_format(min(posttime),\"%H:%i\"),'</TD>') as ''
+                FROM gridfreq
+                where posttime between from_days($DAY) and from_days($DAY+1) and hour(posttime)=$HOUR
+                group by round(minute(posttime)/10,0)
+                order by posttime"))
+        echo "$LABEL" | sed -s 's/> </></g'
+        echo "<TD></TD></TR><TR><TD><a href=\"/cgi-bin/browse_freq?VIEW=DAY&DAY=$DAY\">Day</a></TD>"
+        echo "<TD COLSPAN=10 ALIGN=left></TD><TD COLSPAN=40 ALIGN=center>"
+        mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT date_format(from_days($DAY),concat('%a %b %e ',$HOUR,':00 %Y')) as ''"
+        if [ $DAY = $TODAY ]; then
+                echo "</TD><TD COLSPAN=10></TD>"
+        else
+                echo "</TD><TD COLSPAN=10 ALIGN=right></TD>"
+        fi
+        echo "</TR></TABLE>"
+	;;
+MINUTE)
+	echo "<CENTER><I>Minimum frequency observed by second</I></CENTER>"
+        echo "<TABLE ALIGN=center><TR>"
+        echo "<TD HEIGHT=200 VALIGN=center>60&nbsp;Hz-</TD>"
+        GRAPH=$(echo $(mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT
+                concat('<TD VALIGN=bottom ALIGN=center><font size=1>',if(min(freq)<$CUTOFF,concat(round(min(freq),3),'<br>'),''),'</font><a href=\"/cgi-bin/browse_freq?VIEW=HOUR&DAY=$DAY&HOUR=',hour(posttime),'\"><img border=0 src=',if(min(freq)<$CUTOFF,'red.bmp','green.bmp'),' width=20 height=',round((min(freq)-60)*1000+100,0),' alt=',date_format(posttime,'%H:%i:%s&nbsp;=&nbsp;'),round(min(freq),3),'Hz></a></TD>') as ''
+                FROM gridfreq
+                where posttime between from_days($DAY) and from_days($DAY+1) and hour(posttime)=$HOUR and minute(posttime)=$MINUTE
+                group by second(posttime)
+                order by posttime"))
+        echo "$GRAPH" | sed -s 's/> </></g'
+        echo "<TD></TD></TR><TR><TD></TD>"
+        LABEL=$(echo $(mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT
+                concat('<TD VALIGN=bottom ALIGN=left colspan=10>',date_format(min(posttime),\"%H:%i:%s\"),'</TD>') as ''
+                FROM gridfreq
+                where posttime between from_days($DAY) and from_days($DAY+1) and hour(posttime)=$HOUR AND minute(posttime)=$MINUTE
+                group by round(second(posttime)/10,0)
+                order by posttime"))
+        echo "$LABEL" | sed -s 's/> </></g'
+        echo "<TD></TD></TR><TR><TD><a href=\"/cgi-bin/browse_freq?VIEW=DAY&DAY=$DAY&HOUR=$HOUR\">Hour</a></TD>"
+        echo "<TD COLSPAN=10 ALIGN=left></TD><TD COLSPAN=40 ALIGN=center>"
+        mysql -hollie -uolypen -ppower123 olypen --batch -e "SELECT date_format(from_days($DAY),concat('%a %b %e ',$HOUR,':',$MINUTE,' %Y')) as ''"
+        if [ $DAY = $TODAY ]; then
+                echo "</TD><TD COLSPAN=10></TD>"
+        else
+                echo "</TD><TD COLSPAN=10 ALIGN=right></TD>"
+        fi
+        echo "</TR></TABLE>"
+
+	;;
+CSV)
+	;;
+*)
+	echo "<h1>Invalid request</h1>"
+	;;
+esac
+
+echo "<HR>"
+echo "</BODY></HTML>"

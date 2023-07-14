@@ -1,0 +1,53 @@
+#!/bin/bash
+
+if [ ! -z "$QUERY_STRING" ]; then
+	eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+	pnnl_acct_id=${pnnl_acct_id//[^0-9]/}
+fi
+
+echo "<script language=Javascript>"
+echo "function onselection()"
+echo "{"
+echo "	window.location = \"$DOCUMENT_URI?pnnl_acct_id=\" + document.form1.pnnl_acct_id.value;"
+echo "}"
+echo "</script>"
+
+if [ -z "$pnnl_acct_id" ]; then
+	echo "<form name=form1 method=get>PNNL account id: <select name=pnnl_acct_id onchange=onselection() name=pnnl_acct_id><option>(choose one)</option>"
+	mysql -hollie -uolypen -ppower123 olypen --batch -e "select distinct concat('<option value=',pnnl_acct_id,'>',pnnl_acct_id,'</option>') as ''
+		from cust_billing_history where pnnl_acct_id is not null order by pnnl_acct_id"
+	echo "</form>"
+else
+	echo "<form name=form1 method=get>PNNL account id: <select name=pnnl_acct_id onchange=onselection() name=pnnl_acct_id>"
+	mysql -hollie -uolypen -ppower123 olypen --batch -e "select distinct concat('<option value=',pnnl_acct_id,if(pnnl_acct_id=$pnnl_acct_id,' selected=yes',''),'>',pnnl_acct_id,'</option>') as ''
+		from cust_billing_history where pnnl_acct_id is not null order by pnnl_acct_id"
+	echo "</form>"
+	
+	echo "<table><caption>Monthly usage</caption><tr><td style='background-color: white'>"
+	#mysql -hollie -uolypen -ppower123 olypen --html -e "select 
+	#	concat(billing_month%12+1,'/',floor(billing_month/12)) as 'Month',
+	#	billing_days as 'Days',
+	#	kwh_usage as 'kWh',
+	#	round(billed_amount,2) as 'Bill'
+	#	from cust_billing_history 
+	#	where pnnl_acct_id=$pnnl_acct_id
+	#	order by billing_month" || echo "<h3><font color=red>No records available for customer no. <b>$pnnl_acct_id</b></font></h3>" || echo "Query failed"
+	#echo "</td>"
+	mysql -hollie -uolypen -ppower123 olypen --batch -e "select 
+		concat('<td height=200 style=\"vertical-align: bottom; text-align: center; background-color: white\"><img src=../green.bmp width=20 height=',round(kwh_usage/(select max(kwh_usage) from cust_billing_history)*200+1,0),'><br>',billing_month%12+1,'/0',floor(billing_month/12)-2000,'<br>',round(kwh_usage,0),'<br>',round(billed_amount,0),'</td>') as '<td style=\"vertical-align: bottom\">Month<br>MWh<br>$</td>'
+		from cust_billing_history
+		where pnnl_acct_id=$pnnl_acct_id
+		order by billing_month"
+	echo "</td></tr></table>"
+	echo "<table border=0 cellpadding=0 cellspacing=0><caption>Comparative usage</caption><tr><td style='background-color: white; vertical-align: bottom'><!--"
+	mysql -hollie -uolypen -ppower123 olypen --batch -e "select
+		sum(kwh_usage)/count(kwh_usage) as rank,
+		concat('--></td><td style=\"background-color: white; vertical-align: bottom\"><img height=',round(sum(kwh_usage)/count(kwh_usage)/50,0),' src=../',if(pnnl_acct_id=$pnnl_acct_id,'green','blue'),'.bmp width=5><!--') as ''
+		FROM cust_billing_history
+		group by pnnl_acct_id
+		order by rank"
+	echo "--></td></tr></table>"
+fi
+echo "<script language=Javascript>document.form1.pnnl_acct_id.focus();</script>"
+
+#echo "<pre>$(printenv)</pre>"

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+MYSQL="mysql -hollie -uolypen -ppower123 "
+
+ZIP=$(echo $($MYSQL --batch olypen -e "select distinct(zipcode) from weather order by zipcode asc") | cut -f2- -d' ')
+QUERY=""
+SELECT="concat('<div align=left>',city_st,' ',weather.zipcode,'</div>') as 'City, ST Zip', date_format(readtime,'%m/%d %H:%i') as 'Reported at', sec_to_time(unix_timestamp(now())-unix_timestamp(readtime)) as 'Age', temperature as 'Temperature<br>(F)', humidity as 'Humidity<br>(%)', concat('<div align=center>',winddir,' @ ',windvel,'</div>') as 'Wind<br>(dir @ mph)', dewpoint as 'Dew point<br>(F)', round(barometer,2) as 'Pressure<br>(in Hg)', visibility as 'Visibility<br>(miles)'"
+for i in $ZIP; do
+	select="(SELECT $SELECT FROM weather join weather_sites on weather.zipcode = weather_sites.zipcode where weather.zipcode=$i order by readtime desc limit 1)"
+	if [ -z "$QUERY" ]; then
+		QUERY="$select"
+	else
+		QUERY="$QUERY UNION $select"
+	fi
+done
+if [ ! -z "$QUERY" ]; then
+	$MYSQL --html olypen -e "$QUERY"
+fi

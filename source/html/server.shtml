@@ -1,0 +1,38 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstration Project</title>
+<meta http-equiv="expires" content="0">
+<link rel="stylesheet" type="text/css" href="/standard.css">
+<meta http-equiv="refresh" content="60">
+</head>
+<body>
+<!--#exec cmd="./navbar 'Server Status' Server"-->
+
+<table border=0 background="white" width="100%">
+<tr><td style="background-color: white; vertical-align: top; text-align: left">
+<h3>Processlist [<a href="control/server">Control</a>]</h3>
+<!--#exec cmd="mysql -hollie -uroot -pchass89 -e 'show full processlist' --html"-->
+</td><td style="background-color: white; vertical-align: top; text-align: left">
+<h3>Errors</h3>
+<!--#exec cmd="mysql -hollie -uroot -pchass89 -e 'show errors' --html"-->
+</td><td style="background-color: white; vertical-align: top; text-align: left">
+<h3>Warnings</h3>
+<!--#exec cmd="mysql -hollie -uroot -pchass89 -e 'show warnings' --html"-->
+</td></tr>
+</table>
+
+<table border=0 background="white" width="100%">
+<tr><td style="background-color: white; vertical-align: top; text-align: left">
+<h3>Status</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'show status' --html"-->
+</td><td style="background-color: white; vertical-align: top; text-align: left">
+<h3>Configuration</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'show variables' --html"-->
+</td></tr>
+</table>
+
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# this script notifies the websphere of successful clearing
+#
+ETC=$HOME/etc
+. $ETC/logger.conf || (echo "unable to read logger configuration" && exit 1) >>/dev/stderr
+. $ETC/mysql.conf || (echo "unable to read mysql configuration" && exit 1) >>/dev/stderr
+
+(mysql $MYSQLOPTS --batch --raw -e "SELECT concat('msgtype=marketclear&posttime=',posttime,'&quantity=',quantity,'&price=',price,'&avg24=',avg24,'&std24=',std24,'&avg168=',avg168,'&std168=',std168,'&mkt_id=',mkt_id) AS '' FROM clear ORDER BY posttime DESC limit 1" | sed -s 's/ /%20/g' | sed -s 's/:/%3a/g' | tail -1) || $LOGGER_ERROR "market clearing query for notifier failed"  

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+ETC="$HOME/etc"
+RAW="$HOME/raw/goodwatts"
+. $ETC/logger.conf || exit
+. $HOME/etc/mysql.conf || exit
+cd $HOME/raw/goodwatts
+for month in 04 05 06 07 08 09 10; do
+	for day in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31; do
+		file="gfa_$month${day}06.csv"
+		if [ ! -f $file ]; then
+			wget -cq http://www.goodwatts.com/gatewayfiles/$file
+			mysql $MYSQLOPTS -e "load data local infile '$file' into table goodwatts fields terminated by ','" || $LOGGER_ERROR "mysql post failed for $file"
+		fi
+	done
+done

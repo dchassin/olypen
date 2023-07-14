@@ -1,0 +1,34 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstation Project</title>
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<body>
+<!--#exec cmd="../navbar 'Generation Control'"-->
+
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select 
+	concat(\"<form action=/cgi-bin/control_dg method=get>\",unit_id) as `DG Unit`, 
+	updatetime as `As of`,  
+	concat(\"<input type=text name=capacity_kw value=\",capacity_kw,\" maxlength=5 size=5>\") as `Capacity<br>(kW)`, 
+	concat(\"<input type=radio name=state value=OFF \",if(state=\"OFF\",\"checked\",\"\"),\">Off\",
+		\"<input type=radio name=state value=RDY \",if(state=\"RDY\",\"checked\",\"\"),\">Ready\",
+		\"<input type=radio name=state value=RUN \", if(state=\"RUN\",\"checked\",\"\"),\">Run\") as `Status`, 
+	concat(\"From <input type=text name=license_start value=\",license_start,\" maxlength=10 size=10>\",
+		\" to <input type=text name=license_end value=\",license_end,\" maxlength=10 size=10><br>\",
+		\"Hours <input type=text name=run_hours value=\",sec_to_time(run_hours*3600),\" maxlength=8 size=8>\",
+		\" of <input type=text name=license_hours value=\",sec_to_time(license_hours*3600),\" maxlength=8 size=8>\")
+		as `License`,
+	concat(\"Fuel $<input type=text name=fuel_price value=\",fuel_price,\" maxlength=5 size=5>/MWh \",
+		\" O&amp;M $<input type=text name=annual_cost value=\",annual_cost,\" maxlength=5 size=5>/yr<br>\",
+		\"Start $<input type=text name=startup_cost value=\",startup_cost,\" maxlength=5 size=5>\",
+		\" Stop $<input type=text name=shutdown_cost value=\",shutdown_cost,\" maxlength=5 size=5>\")
+		 as `Cost`,
+	concat(\"<input type=hidden name=unit_id value=\",unit_id,\"><input type=submit value=Set>\",
+		\"<input type=reset value=Reset></form>\") as ``
+	from olypen.dg order by unit_id asc' --html"-->
+
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

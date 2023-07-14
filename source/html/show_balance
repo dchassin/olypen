@@ -1,0 +1,20 @@
+#!/bin/bash
+
+MYSQL="mysql -hollie -uolypen -ppower123 olypen -e"
+start=$($MYSQL "select date_format(min(posttime),'%Y')*12+date_format(min(posttime),'%m') as '' from clear")
+stop=$($MYSQL "select date_format(max(posttime),'%Y')*12+date_format(max(posttime),'%m') as '' from clear")
+
+echo "<TABLE BORDER=1>"
+echo "<TR><TH>Period</TH><TH>Revenue</TH><TH>Expense</TH><TH>Profit</TH><TH>Cleared</TH></TR>"
+i=$(echo $start)
+while [ $i -le $stop ]; do
+	range=$($MYSQL "select concat('between ',min(mkt_id),' and ',max(mkt_id)) as '' from clear where year(posttime)*12+month(posttime)=$i")
+	expense=$($MYSQL "select round(sum(sell.quantity*clear.price/12000),2) as '' from sell join clear on floor(unix_timestamp(sell.posttime)/300) = mkt_id where mkt_id $range and sell.price <= clear.price")
+	revenue=$($MYSQL "select round(sum(demand*price/12000),2) as '' from cust_meter_trans join clear on floor(unix_timestamp(read_time)/300) = mkt_id where mkt_id $range")
+	period=$($MYSQL "select date_format(min(posttime),'%Y-%m') as '' from clear where mkt_id $range")
+	balance=$($MYSQL "select round($revenue-$expense,2) as ''")
+	count=$($MYSQL "select count(*) as '' from clear where mkt_id $range")
+	echo "<TR><TD>$period</TD><TD>$revenue</TD><TD>$expense</TD><TD>$balance</TD><TD>$count</TD></TR>"
+	i=$(($i+1))
+done
+echo "</TABLE>"

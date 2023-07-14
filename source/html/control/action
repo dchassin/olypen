@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mysql -hollie -ppower123 -uolypen olypen --html -e "select * from action_items order by due_date asc"
+

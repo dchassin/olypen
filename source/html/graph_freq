@@ -1,0 +1,25 @@
+#!/bin/bash
+
+MYSQL="mysql -hollie -uolypen -ppower123 olypen --batch -e"
+
+
+LIST="900 840 780 720 660 600 540 480 420 360 300 240 180 120 60 0"
+
+echo '<h2>15 Minute Frequency History</h2>'
+echo '<table border=0><tr>'
+echo '<td valign=center style="text-align: right; background-color: white">60.0Hz-</td>'
+for i in $LIST; do
+	GRAPH=$(echo $($MYSQL "SELECT 
+			CONCAT('<img src=',IF(AVG(freq)<59.95,'red.bmp','green.bmp'),' width=1 height=',ROUND((AVG(freq)-60)*1000,0)+100,' alt=',round(avg(freq),3),'>') AS ''
+		FROM gridfreq
+		WHERE posttime BETWEEN DATE_SUB(NOW(),INTERVAL ('$i'/60+1) MINUTE) AND DATE_SUB(NOW(),INTERVAL '$i'/60 MINUTE)
+		  AND freq BETWEEN 50 and 70
+		GROUP BY posttime"))
+
+	echo "<td width=61 valign=bottom height=200 style='text-align: left; background-color: white;'>$GRAPH</td>" | sed -s 's/> </></g'
+done
+echo '</tr><tr><td></td>'
+for i in $LIST; do
+	echo '<td width=61 style="text-align: center; background-color: white;">'`./datecalc -$i '%H:%M'`'</td>'
+done
+echo '</tr></table>'

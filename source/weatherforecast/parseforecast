@@ -1,0 +1,259 @@
+#!/usr/bin/perl -w
+use strict;
+use DBI;
+
+#Specify mySQL database, host, user, password 
+my $dbh = DBI->connect("DBI:mysql:olypen_test:ollie:923","d3p729","fgh876k", {'RaiseError' => 1});
+
+#This calculates current local time
+my $sec = '';
+my $min = '';
+my $hour = '';
+my $mday = '';
+my $mon = '';
+my $year = '';
+my $wday = '';
+my $yday = '';
+my $isdst = '';
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(); 
+my $yr = sprintf("%02d", $year % 100); 
+my $mn = sprintf("%02d", $mon + 1); 
+my $dy = sprintf("%02d", $mday ); 
+my $hr = sprintf("%02d", $hour); 
+my $metardate = "$yr"."$mn"."$dy"."$hr"."Z.txt"; 
+my $datestamp = '';
+my $yr4 = "20"."$yr";
+
+my $sec2 = '';
+my $min2 = '';
+my $hour2 = '';
+my $mday2 = '';
+my $mon2 = '';
+my $year2 = '';
+my $wday2 = '';
+my $yday2 = '';
+my $isdst2 = '';
+my $dayadd2 = 60*60*24;
+my $timef2 = time() + $dayadd2;   #Used to find future times
+($sec2,$min2,$hour2,$mday2,$mon2,$year2,$wday2,$yday2,$isdst2) = localtime($timef2); 
+my $yr2 = sprintf("%02d", $year2 % 100); 
+my $mn2 = sprintf("%02d", $mon2 + 1); 
+my $dy2 = sprintf("%02d", $mday2 ); 
+my $hr2 = sprintf("%02d", $hour2); 
+my $yr42 = "20"."$yr2";
+
+my $sec3 = '';
+my $min3 = '';
+my $hour3 = '';
+my $mday3 = '';
+my $mon3 = '';
+my $year3 = '';
+my $wday3 = '';
+my $yday3 = '';
+my $isdst3 = '';
+my $dayadd3 = 60*60*48;
+my $timef3 = time() + $dayadd3;   #Used to find future times
+($sec3,$min3,$hour3,$mday3,$mon3,$year3,$wday3,$yday3,$isdst3) = localtime($timef3); 
+my $yr3 = sprintf("%02d", $year3 % 100); 
+my $mn3 = sprintf("%02d", $mon3 + 1); 
+my $dy3 = sprintf("%02d", $mday3 ); 
+my $hr3 = sprintf("%02d", $hour3); 
+my $yr43 = "20"."$yr3";
+
+my $d = '';
+my @time = '';
+my @temp = '';
+my @dew = '';
+my @hum = '';
+my $count = 0;
+my $timetest = 0;
+my $temptest = 0;
+my $dewtest = 0;
+my $humiditytest = 0;
+my $countmax = 12;
+my $step = 1;
+if ($hr>16)
+	{
+	$step = 2;
+	}
+
+
+while ($step < 5)
+	{
+					           			
+	my $file = '/data/olypen/raw/weatherforecast/' . "$yr4"."$mn"."$dy"."_"."$hr"."_"."$step".".raw";
+	#print "$file","\n";
+	if ( -e $file)
+		{
+   		open(INFO, $file);
+   		while (<INFO>) 
+   			{chomp;  #strip record separator
+			if (/>Time</)
+           			{
+				$timetest = 1;
+				$count = 0;
+				}           			
+			if (/>Temperature</)
+           			{
+				$temptest = 1;
+				$count = 0;
+				}           			
+			if (/>Dewpoint</)
+           			{
+				$dewtest = 1;
+				$count = 0;
+				}           			
+			if (/>Humidity</)
+           			{
+				$humiditytest = 1;
+				$count = 0;
+				}           			
+	#		print "$count","-count","\n";
+			if ($timetest == 1)
+				{if ($count<$countmax)
+					{if (/>(\d{1,2})([a-z]{1})</)
+						{$d = "$_";splice(@time,$count,1,decode_TIME($d));$count = $count + 1;
+						}
+					}
+				elsif ($count==$countmax)
+					{$timetest = 0;
+					}	
+				}
+			if ($temptest == 1)
+				{if ($count<$countmax)
+					{if (/>\d{2,3}</)
+						{$d = "$_";splice(@temp,$count,1,decode_VALUE($d));$count = $count + 1;
+						}
+					}
+				elsif ($count==$countmax)
+					{$temptest = 0;
+					}	
+				}
+			if ($dewtest == 1)
+				{if ($count<$countmax)
+					{if (/>\d{2,3}</)
+						{$d = "$_";splice(@dew,$count,1,decode_VALUE($d));$count = $count + 1;
+						}
+					}
+				elsif ($count==$countmax)
+					{$dewtest = 0;
+					}	
+				}
+			if ($humiditytest == 1)
+				{if ($count<12)
+					{if (/>\d{2,3}</)
+						{$d = "$_";splice(@hum,$count,1,decode_VALUE($d));$count = $count + 1;
+						}
+					}
+				elsif ($count==$countmax)
+					{$humiditytest = 0;
+					}	
+				}
+			}
+		
+		my $vcount=0;
+	#print "$vcount","-vcount","\n";	
+		while ($vcount<$countmax)
+			{	    			
+			my $time4 = $time[$vcount];
+			my $timecalc = ' ';	
+			if ($step == 1)
+				{
+				$timecalc = "$yr4"."-"."$mn"."-"."$dy"." "."$time4".":00:00";
+				}
+			elsif($step == 2)
+				{
+				if ($time4 <= 6)
+					{
+					$timecalc = "$yr42"."-"."$mn2"."-"."$dy2"." "."$time4".":00:00";
+					}
+				else	
+					{
+					$timecalc = "$yr4"."-"."$mn"."-"."$dy"." "."$time4".":00:00";
+					}
+				}
+			elsif ($step == 3)
+				{
+				$timecalc = "$yr42"."-"."$mn2"."-"."$dy2"." "."$time4".":00:00";
+				}
+			elsif ($step == 4)
+				{
+				if ($time4 <= 6)
+					{				
+					$timecalc = "$yr43"."-"."$mn3"."-"."$dy3"." "."$time4".":00:00";
+					}
+				else
+					{
+					$timecalc = "$yr42"."-"."$mn2"."-"."$dy2"." "."$time4".":00:00";
+					}
+				}
+			
+			my @v =  ($timecalc,$temp[$vcount],$hum[$vcount],$dew[$vcount]);
+#			print "@v","\n";
+			my $rows = $dbh->do ("REPLACE INTO weatherforecast  VALUES('$v[0]','KCLM',DEFAULT,$v[1],$v[2],$v[3])");
+			$vcount = $vcount + 1;
+			}
+		
+		close(INFO);
+		}
+		
+		$step = $step +1;
+	}
+
+
+sub decode_TIME            #Subroutine that extracts Time
+	{
+   	my ($s) = @_;
+   	my @out = '';		
+   	my $time = ' ';  # readtime
+   	my $time2;
+
+        if ($s =~ />(\d{1,2})([a-z]{1})</)             #Reads hour and a/p from read
+                {
+		$time = $1;
+		$time2 = $2;
+
+
+		if ($time2 eq 'a')
+			{
+			if ($time == 12)
+				{
+				$time = 00;
+				}
+			}
+		if ($time2 eq 'p')
+			{
+			
+			if ($time != 12)
+				{
+				$time = $time + 12;
+				}
+			}
+
+
+		}
+
+        else                                                    #Ignores remaining data
+                {
+                }
+
+   	@out = ($time); 
+  	}
+
+sub decode_VALUE            #Subroutine that extracts Weather Values
+   	{
+   	my ($s) = @_;
+   	my @out = '';		
+	my $RT = ' ';
+        if ($s =~ />(\d{2,3})</)            
+                {
+		$RT = $1;
+		}
+        else                                                    #Ignores remaining data
+                {
+                }
+
+   	@out = ($RT); 
+  	}
+
+

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+ETC="$HOME/etc"
+PATH=$PATH:$HOME/bin
+
+LCK="/var/lock/olypen/getmetar.lck"
+DAILYLCK="/var/lock/daily.lck"
+RUNLCK="$HOME/lck/getmetar.lck"
+
+if [ -f $LCK -o -f $DAILYLCK -o -f $RUNLCK ]; then
+	exit
+else
+	trap "rm -f $LCK" EXIT
+	echo "$(date): $$" >$LCK
+fi
+
+. $ETC/logger.conf
+. $ETC/mysql.conf
+
+# this reads the full NOAA metar cycle file
+METAR="$(date -u +'http://weather.noaa.gov/pub/data/observations/metar/cycles/%HZ.TXT')"
+wget -cq $METAR -O $HOME/raw/metar/$(date -u +'%y%m%d18Z.txt') || $LOGGER_ERROR "wget failed to get current metar"
+find $HOME/raw/metar -name \*.txt -mtime 1 -exec gzip \{\} \;
+

@@ -1,0 +1,13 @@
+<html>
+<head>
+<title>Olympic Peninsula Financial Report</title>
+<meta http-equiv="expires" content="0">
+</head>
+<frameset rows="100,*">
+	<frame src="billing_hdg.shtml">
+	<frameset cols="200,*">
+		<frame name="nav" src="billing_nav.shtml">
+		<frame name="main" src="billing_intro.html">
+	</frameset>
+</frameset>
+

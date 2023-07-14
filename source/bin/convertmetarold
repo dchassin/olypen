@@ -1,0 +1,191 @@
+#!/usr/bin/perl -w
+use strict;
+use DBI;
+
+#Specify mySQL database, host, user, password
+my $dbh = DBI->connect("DBI:mysql:database=olypen;host=ollie","olypen","power123", {'RaiseError' => 1});
+
+#This calculates current UTC time
+my $sec = '';
+my $min = '';
+my $hour = '';
+my $mday = '';
+my $mon = '';
+my $year = '';
+my $wday = '';
+my $yday = '';
+my $isdst = '';
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime();
+my $yr = sprintf("%02d", $year % 100);
+my $mn = sprintf("%02d", $mon + 1);
+my $dy = sprintf("%02d", $mday );
+my $hr = sprintf("%02d", $hour);
+my $metardate = "$yr"."$mn"."$dy"."$hr"."Z.txt";
+my $datestamp = '';
+
+my $d = '';
+my @p = '';
+
+#print $metardate;
+#loads METAR cycle file
+my $file = '/data/olypen/raw/metar/' . "$metardate";
+if ( -e $file)
+   {
+   open(INFO, $file);
+  
+  
+#separates out needed METAR records
+   while (<INFO>)
+   	{
+   	chomp;  #strip record separator
+   	if (/^[0-9]/)
+           {
+           $datestamp = $_;
+           }
+
+   	if (/[A-Z]/)   #Specifies METAR locations for data analysis CURRENTLY DOWNLOADING ALL SITES
+           {
+           $d = "$datestamp" . ' ' . "$_";
+	   @p = decode_METAR_TAF($d);
+	   #Inserts data into mySQL table
+           my $rows = $dbh->do ("INSERT IGNORE INTO weathernoaa VALUES('$p[0]','$p[1]',DEFAULT,$p[3],$p[4],$p[5],$p[6],$p[7],$p[8],$p[9])");
+           }
+
+    	}
+   }
+
+close(INFO);
+
+sub decode_METAR_TAF            #Subroutine that extracts weather data from each METAR report
+   {
+   my ($s) = @_;
+   $s = uc $s;
+   $s =~ s/=//g;
+
+my ($out) = '';
+   my @metar = '';
+   my $id = '';
+   my $NC = '';  # noaacode
+   my $RT = '';  # readtime
+   my $PT = '';  # posttime
+   my $TP = 'NULL'; # temperature
+   my $HU = 'NULL'; # humidity
+   my $HU1 = 'NULL'; # used to calc humidity
+   my $HU2 = 'NULL'; # used to calc humidity
+   my $DP = 'NULL'; # dewpoint
+   my $WV = 'NULL'; # windvel
+   my $WV1 = 'NULL'; # used for windvel calculations	
+   my $WD = 'NULL'; # winddir
+   my $BR = 'NULL'; # barometer\
+   my $BR1 = 'NULL'; # used for hP barometric calculations
+   my $VI = 'NULL'; # visibility - NOT CURRENTLY READ
+
+   my $token;
+
+   my @tokens = split /\s+/, $s;
+
+   while ($token = shift @tokens)
+        {
+
+# METAR DATA Extractor
+
+        if ($token =~ /^(\d{4})\/(\d{2})\/(\d{2})/)             #Reads year-month-day readtime from post date
+                {
+                $RT = "$1-$2-$3 ";
+                }
+
+        elsif ($token =~ /^((\d{2}):(\d{2}))/)                  #Ignores post time
+                {
+                }
+
+        elsif ($id eq '' and $token =~ /^[A-Z]{4}$/)            #Reads NOAA location code
+                {
+                $id = $token;
+                $NC = $token;
+                }
+
+        elsif ($token =~ /^(\d{2})(\d{2})(\d{2})Z$/)            #Reads time of data read
+                {
+                $RT .= "$2:$3:00";
+                }
+
+
+        elsif ($token =~ /^(AUTO)/)                             #Ignores "AUTO" if AUTO read
+                {
+                }
+
+        elsif ($token =~ /^VRB(\d{2})KT$/)        #Wind Speed in Knots; For variable wind direction, uses "370" for
+                {                                 #wind direction and reads wind speed
+                $WD = "370";
+		$WV = "$1";
+                }
+
+	elsif ($token =~ /^VRB(\d{2})KMH$/)       #Wind Speed in km/hr
+		{				  	
+		$WV1 = $1 * 0.54;		  #Converts speed into knots
+		$WV = "$WV1";
+		}
+
+	elsif ($token =~ /^VRB(\d{2})MPS$/)       #Wind Speed in meters per second
+		{				  
+		$WV1 = $1 * 0.0324;		  #Converts speed into knots
+		$WV = "$WV1";
+		}
+
+        elsif ($token =~ /^(\d{3})(\d{2})(G?)(\d+)?KT$/)  #Speed in Knots; Reads wind speed and direction
+                {					  #360 is true north	
+                $WD = "$1";
+                $WV = "$2";
+                }
+
+	elsif ($token =~ /^(\d{3})(\d{2})(G?)(\d+)?KMH$/)  #Speed in km/hr
+		{					   
+		$WD = "$1";
+		$WV1 = $2 * 0.54;			   #Converts speed into knots
+		$WV = "$WV1";
+		}
+
+	elsif ($token =~ /^(\d{3})(\d{2})(G?)(\d+)?MPS$/)  #Speed in meters per second
+		{					   
+		$WD = "$1";
+		$WV1 = $2 * 0.0324;			   #Converts speed into knots
+		$WV = "$WV1";
+		}
+        elsif ($token =~ /^(M?)(\d{2,3})\/(M?)(\d{2,3})$/)      #Reads temperature and dewpoint in degrees Celsius. M is used for negative value
+                {
+                $TP = "@{[$1?'-':'']}@{[int($2)]}";
+                $DP = "@{[$3?'-':'']}@{[int($4)]}";
+                }
+
+        elsif ($token =~ /^A(\d{2})(\d{2})$/)                   #Reads barometer reading if in. of Hg
+                {
+                $BR = "$1.$2";
+                }
+
+        elsif ($token =~ /^Q(\d{4})$/)                      #Reads barometer reading if in hP
+                {				
+                $BR1 = $1 * 0.0295;			   #Converts to in. of Hg
+		$BR = "$BR1"; 
+                }
+
+        else                                                    #Ignores remaining data
+                {
+                }
+
+        }
+
+   if ($TP =~/^(NULL)/)
+	{
+	}
+   elsif ($DP =~ /^(NULL)/)
+	{
+	}	
+   else
+	{	
+	$HU1 = 6.11*10.0**(7.5*$DP/(237.7+$DP));
+   	$HU2 = 6.11*10.0**(7.5*$TP/(237.7+$DP));
+   	$HU = ($HU1/$HU2)*100;
+	}
+   @metar = ($NC,$RT,$PT,$TP,$HU,$DP,$WV,$WD,$BR,$VI);
+   }
+

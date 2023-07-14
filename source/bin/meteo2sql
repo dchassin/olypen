@@ -1,0 +1,55 @@
+#!/bin/bash
+
+if [ -z "$1" -a -z "$1" ]; then
+	echo "Syntax: $(basename $0) weather_file zipcode"
+	exit 1
+elif [ ! -s "$1" ]; then
+	echo "missing or empty weather file $1 for $2"
+	exit 2;
+fi
+
+date=($(grep "Updated:" $1))
+temp=($(grep -v ":" $1))
+humi=($(grep "Humidity:" $1))
+dewp=($(grep "Dew Point:" $1))
+wind=($(grep "Wind:" $1))
+baro=($(grep "Pressure:" $1))
+visi=($(grep "Visibility:" $1))
+
+time=$(date -d "${date[5]:0:3} ${date[6]/,/} ${date[1]} ${date[2]} ${date[3]} ${date[7]}" +"%Y-%m-%d %H:%M")
+
+#set | tail -8
+
+if [ "${wind[1]}" == "Calm" ]; then
+	wind[1]="0.0mph"
+	wind[6]="CALM"
+	if [ "${wind[3]}" == "Gust:" ]; then
+		wind[1]=${wind[4]}
+		wind[6]="GUST"
+	else
+		baro[1]=${wind[3]}
+	fi
+	#echo "### revised ###"
+	#set | tail -8
+fi
+
+if [ -z "${temp[0]}" ]; then
+	temp[0]="NULL"
+fi
+if [ -z "${humi[1]}" ]; then
+	humi[1]="NULL"
+fi
+if [ -z "${dewp[2]}" ]; then
+	dewp[2]="NULL"
+fi
+if [ -z "${wind[1]}" ]; then
+	wind[1]="NULL"
+fi
+if [ -z "${baro[1]}" ]; then
+	baro[1]="NULL"
+fi
+if [ -z "${visi[1]}" ]; then
+	visi[1]="NULL"
+fi
+
+echo "INSERT IGNORE INTO weather (zipcode, readtime, temperature, humidity, dewpoint, windvel, winddir, barometer, visibility) VALUES ('$2', '$time', '${temp[0]/F/'}, '${humi[1]/\%/}', '${dewp[2]/F/}', '${wind[1]/mph/}', '${wind[6]//[^A-Z]/}', '${baro[1]/in/}', '${visi[1]/miles/}')"

@@ -1,0 +1,16 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstation Project Control</title>
+<link rel="stylesheet" type="text/css" href="standard.css">
+</head>
+<body>
+
+<!--#exec cmd="./navbar 'Customer equipment' Equipment"-->
+
+<!--#exec cmd="./cust_devices"-->
+
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

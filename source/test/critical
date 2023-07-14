@@ -1,0 +1,11 @@
+#!/bin/bash
+
+MYSQL="mysql -uolypen -ppower123 -hollie olypen"
+
+# check for deviation and send a mail message
+MAILTO="don.hammerstrom@pnl.gov"
+DEV=1
+dev=`$MYSQL --batch -e "SELECT if(price>avg24+$DEV*std24,1,0) AS '' FROM clear ORDER BY posttime DESC LIMIT 1"`
+if [ $dev -eq 1 ]; then
+	echo "Price has exceed daily average by more than 1 standard deviation at $(date)" | mail -s "Olypen Price warning" -c "" $MAILTO
+fi

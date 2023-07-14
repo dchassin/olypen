@@ -1,0 +1,18 @@
+#!/bin/bash
+eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+
+proc_id=${proc_id//[^0-9]/}
+
+if [ ! -z "$proc_id" ]; then
+	result=$(mysql -hollie -uroot -pchass89 -e "kill $proc_id" --batch)
+else
+	result="incomplete query"
+fi
+
+echo "Content-type: text/html"
+echo ""
+if [ -z "$result" ]; then
+	echo "<HTML><HEAD><META HTTP-EQUIV='refresh' CONTENT='0;URL=/olypen/server'></HEAD></HTML>"
+else
+	echo "<HTML><HEAD>Server control error</HEAD><BODY>Error: '$result'</BODY></HTML>"
+fi

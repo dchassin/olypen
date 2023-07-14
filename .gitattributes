@@ -1,0 +1,13 @@
+data/cust_billed_meter_usage.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_device.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_dryer_config.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_meter_trans.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_tstat_config.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_tstat_trans.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_usage_projection.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_wh_config.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_wh_trans.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/customer.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_billing_history.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_contract_history.csv.gz filter=lfs diff=lfs merge=lfs -text
+data/cust_dryer_trans.csv.gz filter=lfs diff=lfs merge=lfs -text

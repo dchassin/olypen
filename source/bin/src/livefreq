@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ -z "$1" ]; then
+	echo 'syntax: '$(basename $0)' /dev/tcp/<server>/<port>'
+	exit 1;
+fi
+head -10 <$1 | sed -urs 's/[^A-Za-z=;()0-9\.\/ ]//g' | freq2sql

@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstation Project</title>
+<meta http-equiv="expires" content="0">
+<!--#exec cmd="date +'<meta http-equiv=\"refresh\" content=\"'$(( ($(date +\"%s\")/60)*60+60 + 10 - $(date +\"%s\") ))'\">'"-->
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<html>
+<!--#exec cmd="../navbar 'Server Control' Server"-->
+<!--#exec cmd="./server_status"-->
+<h1>Active MySQL connections</h1>
+<!--#exec cmd="mysql -hlocalhost -uroot -pchass89 -e 'show processlist' --html | sed -re 's/<TR><TD>([0-9]+)<\/TD>/<TR><TD><br><form action=\/cgi-bin\/kill_proc method=get><input type=hidden name=proc_id value=\1>\1\&nbsp;<input type=submit value=Kill><\/form><\/TD>/g'"-->
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

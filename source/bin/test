@@ -1,0 +1,16 @@
+#!/usr/bin/perl -w
+use strict;
+my $isdst = '';
+my $e ='';
+my $r ='';
+my $t ='';
+my $y ='';
+my $u ='';
+my $i ='';
+my $o ='';
+my $p ='';
+
+($e,$r,$t,$y,$u,$i,$o,$p,$isdst)=localtime();
+print "$e ","$r ","$t ","$y ","$u ","$i ","$o ","$p ","\n";
+print $isdst;
+

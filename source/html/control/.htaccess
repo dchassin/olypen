@@ -1,0 +1,8 @@
+AuthUserFile /var/www/html/.htpasswd
+AuthGroupFile /dev/null
+AuthName Olympic_Peninsula
+AuthType Basic
+
+<Limit GET>
+require user olypen
+</Limit>

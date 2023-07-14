@@ -1,0 +1,15 @@
+#!/bin/gawk -f
+
+BEGIN {
+	msgnum=0;
+	found=0;
+	if (msg==0) msg=1;
+}
+
+/^From / {
+	msgnum=msgnum+1;
+}
+
+{
+	if ( msgnum != msg ) printf "%s\n", $0;
+}

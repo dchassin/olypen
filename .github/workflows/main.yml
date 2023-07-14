@@ -1,0 +1,21 @@
+name: Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: lfenergy/arras:develop
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Check olypen module
+      run: |
+        cd analysis
+        gridlabd python -m olypen
+      

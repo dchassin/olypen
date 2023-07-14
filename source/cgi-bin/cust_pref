@@ -1,0 +1,31 @@
+#!/bin/bash
+
+eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+pnnl_acct_id=${pnnl_acct_id//[^0-9]/}
+utility=${utility//[^A-Z]/}
+first_choice=${first_choice//[^A-Z]/}
+second_choice=${second_choice//[^A-Z]/}
+
+if [ "$utility" != "NULL" ]; then
+	utility="'$utility'";
+fi
+if [ "$first_choice" != "NULL" ]; then
+	first_choice="'$first_choice'";
+fi
+if [ "$second_choice" != "NULL" ]; then
+	second_choice="'$second_choice'";
+fi
+
+mysql -hollie -uolypen -ppower123 olypen -e "replace into cust_contract_preference (pnnl_acct_id, utility, first_choice, second_choice) values ($pnnl_acct_id, $utility, $first_choice, $second_choice)" || error="Customer preference update failed."
+
+echo "Content-type: text/html"
+echo ""
+if [ ! -z "$error" ]; then
+	echo "<HTML><HEAD><link rel=stylesheet type=\"text/css\" href=\"/standard.css\"></HEAD><BODY>"
+	echo "<h1>Customer preference update error</h1><h2>Report is '$error'.</h2>"
+	echo "<HR>You may return to <a href=\"/control/cust_pref\">control panel</a> and start over or hit BACK to try again...</BODY></HTML>"
+else
+	echo "<HTML><HEAD><META HTTP-EQUIV=refresh CONTENT=\"1;URL=/control/cust_pref\"><link rel=stylesheet type=\"text/css\" href=\"/standard.css\"></HEAD><BODY>"
+	echo "<h1>Customer preference update ok</h1><h2>Update succeeded</h2>"
+	echo "<HR>Returning to <a href=\"/control/cust_pref\">control panel</a> in 1 seconds...</BODY></HTML>"
+fi

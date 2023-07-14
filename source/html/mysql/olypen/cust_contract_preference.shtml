@@ -1,0 +1,12 @@
+<html> <head> <title>olypen.cust_contract_preference</title>
+			<link rel="stylesheet" type="text/css" href="/standard.css">
+			<meta http-equiv="expires" content="0">
+			</head> <body> <h1>olypen.cust_contract_preference</h1>
+<h3>Columns</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'show columns from olypen.cust_contract_preference' --html | sed -s 's/<TD><\/TD>/<TD>\&nbsp;<\/TD>/g'"-->
+<h3>Indexes</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'show index from olypen.cust_contract_preference' --html | sed -s 's/<TD><\/TD>/<TD>\&nbsp;<\/TD>/g'"-->
+<h3>Sample</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select * from olypen.cust_contract_preference limit 100' --html"-->
+<HR><cite>Generated <!--#exec cmd="date"-->
+</body></html>

@@ -1,0 +1,37 @@
+<html>
+<head>
+<!--#include file="title.conf"-->
+<meta http-equiv="expires" content="0">
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<body>
+<!--#exec cmd="./navbar 'Olympic Peninsula Demonstration Project' Rates"-->
+
+<table border=2 width="100%">
+<tr><th style="text-align: center">Fixed price</th><th style="text-align: center">Time-of-use profile</th></tr>
+<tr><td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select startdate as `Effective date`, round(price,2) as `Fixed price<br>($/MWh)` from fixed_price where enddate is null' --html"-->
+</td><td valign=top style="text-align: center"><br>
+0:00
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=10 alt=\",round(price,2),\" height=\",round(price,0)/3,\">\") as `` from tou_prices where enddate is NULL and hour between 0 and 5 order by hour asc' --batch"-->
+6:00
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=10 alt=\",round(price,2),\" height=\",round(price,0)/3,\">\") as `` from tou_prices where enddate is NULL and hour between 6 and 11 order by hour asc' --batch"-->
+12:00
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=10 alt=\",round(price,2),\" height=\",round(price,0)/3,\">\") as `` from tou_prices where enddate is NULL and hour between 12 and 17 order by hour asc' --batch"-->
+18:00
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=10 alt=\",round(price,2),\" height=\",round(price,0)/3,\">\") as `` from tou_prices where enddate is NULL and hour between 18 and 24 order by hour asc' --batch"-->
+24:00
+<br>
+</td></tr>
+<tr><th>Critical events</th><th>Hourly prices</th></tr>
+<tr><td valign=top style="text-align=center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select concat(date_format(cpp_date,\"%Y-%m-%d \"),cpp_hour,\":00\") as `Date/Hour`, round(price,2) as `Price`, updatetime as `Posted` from critical_prices' --html"-->
+</td><td valign=top style="text-align=center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select startdate as `Effective date`, concat(\"<center>\",hour,\":00 - \",hour,\":59</center>\") as `Time of day`, round(price,2) as `Time-of-use price<br>($/MWh)`, round(critical_price,2) as `Critical peak price<br>($/MWh)` from tou_prices where enddate is null order by hour asc' --html"-->
+</td></tr>
+</table>
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

@@ -1,0 +1,347 @@
+#!/usr/bin/perl -w
+use strict;
+use DBI;
+
+#Specify mySQL database, host, user, password
+my $dbh = DBI->connect("DBI:mysql:database=shawn;host=ollie","olypen","power123", {'RaiseError' => 1});
+
+#This calculates current UTC time
+my $sec = '';
+my $min = '';
+my $hour = '';
+my $mday = '';
+my $mon = '';
+my $year = '';
+my $wday = '';
+my $yday = '';
+my $isdst = '';
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime();
+my $yr = sprintf("%02d", $year % 100);
+my $mn = sprintf("%02d", $mon + 1);
+my $dy = sprintf("%02d", $mday );
+my $hr = sprintf("%02d", $hour);
+my $metardate = "$yr"."$mn"."$dy"."$hr"."Z.txt";
+my $datestamp = '';
+
+my $d = '';
+my @p = '';     #array p is for holding values of elements to be added via sql to database
+
+my $countyear = '';
+my $fileyear = '';
+my $countmonth = '';
+my $filemonth = '';;
+my $countday = '';
+my $fileday = '';
+my $counthour = '';
+my $filehour = '';
+
+#Code to add old METAR data to database
+
+chdir ("/data/olypen/raw/metar");
+
+for ($countyear = 6; $countyear <8; $countyear++)
+{ 
+	for ($countmonth = 1; $countmonth < 13; $countmonth++)
+		{
+		for ($countday = 1; $countday < 32; $countday++)
+			{
+			for ($counthour = 0; $counthour < 24; $counthour++)
+				{
+				$fileyear = sprintf("%02d",$countyear);
+				$filemonth = sprintf("%02d",$countmonth);
+				$fileday = sprintf("%02d",$countday);
+				$filehour = sprintf("%02d",$counthour);			
+
+				my $file = '/data/olypen/raw/metar/'."$fileyear"."$filemonth"."$fileday"."$filehour".'Z.txt';
+				#my $file = '/data/olypen/raw/metar/07062916z.txt';
+				#my $file = '/data/olypen/raw/metar/' . "$metardate";
+
+
+
+
+if ( -e $file)
+   {
+   open(INFO, $file);
+  
+  
+#separates out needed METAR records
+   while (<INFO>)
+   	{
+   	chomp;  #strip record separator
+   	if (/^[0-9]/)
+           {
+           $datestamp = $_;
+           }#end if 09
+
+   	if (/[A-Z]/)   #Specifies METAR locations for data analysis CURRENTLY DOWNLOADING ALL SITES
+           {
+           $d = "$datestamp" . ' ' . "$_";   #$d is now datestamp plus remainder of line
+	   @p = decode_METAR_TAF($d);               #calling subroutine, using new datestamp/METAR line as argument
+	   #Inserts data into mySQL table
+	  #my $rows = $dbh->do ("INSERT IGNORE INTO weathernoaa_test VALUES('$p[0]','$p[1]',DEFAULT,$p[3],$p[4],$p[5],$p[6],$p[7],$p[8],$p[9],$p[10])");
+          #my $rows = $dbh->do ("UPDATE weathernoaa_test set visibility = ".$p[9].",cloudcover = ".$p[10]." WHERE noaacode = '". $p[0] ."' and readtime = '". $p[1] ."'");   
+	  my $rows = $dbh->do ("REPLACE INTO weathernoaa_test VALUES('$p[0]','$p[1]',DEFAULT,$p[3],$p[4],$p[5],$p[6],$p[7],$p[8],$p[9],$p[10])");
+
+	  }#end if az
+
+    	}#end while info
+   }#end if file
+
+close(INFO);
+
+sub decode_METAR_TAF            #Subroutine that extracts weather data from each METAR report line
+   {
+   my ($s) = @_;      	#assign incoming variable to new scalar, $s
+   $s = uc $s;     	#replace any lower case letters with upper case and reassign to variable $s
+   $s =~ s/=//g;	#search for all occurrances of '=' and replace with ' ' in the string.
+
+my ($out) = '';
+   my @metar = '';
+   my $id = '';  #NOAA location code
+   my $NC = '';  # noaacode
+   my $RT = '';  # readtime
+   my $PT = '';  # posttime
+   my $TP = 'NULL'; # temperature
+   my $HU = 'NULL'; # humidity
+   my $HU1 = 'NULL'; # used to calc humidity
+   my $HU2 = 'NULL'; # used to calc humidity
+   my $DP = 'NULL'; # dewpoint
+   my $WV = 'NULL'; # windvel
+   my $WV1 = 'NULL'; # used for windvel calculations	
+   my $WD = 'NULL'; # winddir
+   my $BR = 'NULL'; # barometer\
+   my $BR1 = 'NULL'; # used for hP barometric calculations
+   my $VI = 'NULL'; # visibility
+   my $CC = '-1';  #Cloud Cover
+  
+   my $newtoken;
+   my $add;
+   my $fraction;
+
+   my $token;
+
+   my @tokens = split /\s+/, $s;  	#splits $s into elements of token array
+
+   while ($token = shift @tokens)	#removes first element of tokens array, assigns it to $token and shifts all others up.
+        {
+
+# METAR DATA Extractor
+
+if ($token =~ /^(\d{4})\/(\d{2})\/(\d{2})/)             #Reads year-month-day readtime from post date
+                {
+                $RT = "$1-$2-$3 ";	#assigns values found in if statement to $RT
+                }
+
+        elsif ($token =~ /^((\d{2}):(\d{2}))/)                  #Ignores post time
+                {
+                }
+
+        elsif ($id eq '' and $token =~ /^[A-Z]{4}$/)            #Reads NOAA location code
+                {
+                $id = $token;  
+                $NC = $token;
+                }
+
+        elsif ($token =~ /^(\d{2})(\d{2})(\d{2})Z$/)            #Reads time of data read
+                {
+                $RT .= "$2:$3:00";
+                }
+
+
+        elsif ($token =~ /^(AUTO)/)                             #Ignores "AUTO" if AUTO read
+                {
+                }
+
+        elsif ($token =~ /^VRB(\d{2})KT$/)        #Wind Speed in Knots; For variable wind direction, uses "370" for
+                {                                 #wind direction and reads wind speed
+                $WD = "370";
+		$WV = "$1";
+                }
+
+	elsif ($token =~ /^VRB(\d{2})KMH$/)       #Wind Speed in km/hr
+		{				  	
+		$WV1 = $1 * 0.54;		  #Converts speed into knots
+		$WV = "$WV1";
+		}
+
+	elsif ($token =~ /^VRB(\d{2})MPS$/)       #Wind Speed in meters per second
+		{				  
+		$WV1 = $1 * 0.0324;		  #Converts speed into knots
+		$WV = "$WV1";
+		}
+
+        elsif ($token =~ /^(\d{3})(\d{2})(G?)(\d+)?KT$/)  #Speed in Knots; Reads wind speed and direction
+                {					  #360 is true north	
+                $WD = "$1";
+                $WV = "$2";
+                }
+
+	elsif ($token =~ /^(\d{3})(\d{2})(G?)(\d+)?KMH$/)  #Speed in km/hr
+		{					   
+		$WD = "$1";
+		$WV1 = $2 * 0.54;			   #Converts speed into knots
+		$WV = "$WV1";
+		}
+
+	elsif ($token =~ /^(\d{3})(\d{2})(G?)(\d+)?MPS$/)  #Speed in meters per second
+		{					   
+		$WD = "$1";
+		$WV1 = $2 * 0.0324;			   #Converts speed into knots
+		$WV = "$WV1";
+		}
+        elsif ($token =~ /^(M?)(\d{2,3})\/(M?)(\d{2,3})$/)      #Reads temperature and dewpoint in degrees Celsius. M is used for negative value
+                {
+                $TP = "@{[$1?'-':'']}@{[int($2)]}";
+                $DP = "@{[$3?'-':'']}@{[int($4)]}";
+                }
+
+        elsif ($token =~ /^A(\d{2})(\d{2})$/)                   #Reads barometer reading if in. of Hg
+                {
+                $BR = "$1.$2";
+                }
+
+        elsif ($token =~ /^Q(\d{4})$/)                      #Reads barometer reading if in hP
+                {				
+                $BR1 = $1 * 0.0295;			   #Converts to in. of Hg
+		$BR = "$BR1"; 
+                }
+
+	elsif ($token =~ /CAVOK/)		#If cloud cover clear and visibility unobstructed
+		{
+		$CC = 0;
+		$VI = 9999;
+		}
+		
+	elsif ($token =~ /^(1|2)$/) 	#If visibility is whole number plus a fraction in statute miles
+		{
+		$add = $1;
+		$newtoken = shift(@tokens);   
+		
+		if ($newtoken)     #If EOF, no newtoken exists, this will execute only if a newtoken was found and assigned.
+			{	
+			if ($newtoken !~ /SM$/)		#If no SM at end of newtoken, newtoken will be placed back into array, this covers
+				{			#occasional 1's or 2's that may show up but represent a different value in the METAR string.
+				#print "This is going to unshift in order to put $newtoken back into the array \n";
+				unshift (@tokens, $newtoken);
+				}#end if sm 
+			elsif ($newtoken =~ /^(\d{1,2})\/(\d{1,2})SM$/)	#Access fractional numbers in statute mile value.
+				{	
+				if (!(($1||$2) == 0))     #Takes fractional values, converts to decimal, adds whole number and converts to meters.
+					{
+					$fraction = $1/$2;
+					$VI = ($add + $fraction)*1609.344;  #This line adds the whole and fractional miles and converts to meters.
+					#print "$fraction -fraction and $VI -VI ------WORKING RESULT!------- \n";
+					}#end if
+				}#end elsif
+			
+			elsif ($newtoken =~ /^SM$/)   #ignore solitary SM  
+				{
+				}
+
+			else 
+				{
+				#print "$newtoken HERE is a new exception to the previous rules! \n";
+				}
+			}#end if newtoken
+		}#end elsif
+
+	elsif ($token =~ /^(M*)(\d{1,2})\/(\d{1,2})SM$/)	#If visibility is in fractional SM's and data from AUTO OR manual
+		{
+		if (!(($2||$3) == 0))  #No div/zero, converts fractional SM to meters
+			{
+			$VI = (($2/$3) * 1609.344);	
+			}
+		}
+
+	elsif ($token =~ /^(\d{4,4})$/)      #If visibility is reported in whole meters
+		{
+		$VI = $1;
+		}
+	
+	elsif ($token =~ /^(\d{4,4})NDV$/)   #Visibility in meters, with NDV on end
+		{
+		$VI = $1;
+		}
+
+	elsif ($token =~ /^(\d{4,4})(N|NE|E|SE|S|SW|W|NW)$/)     #Visibility in meters with direction on end
+		{
+		$VI = $1;
+		}
+
+	elsif ($token =~ /(\d{1,4})SM$/)	#If visibility is a whole number in statute miles
+		{
+		if ($1 == 0)
+			{
+			$VI = 0;
+			}
+		else
+			{	
+			$VI = $1 * 1609.344;
+			}
+		}
+
+	elsif ($token =~ /^(CLR|SKC)/)			#If cloud cover clear
+		{
+		$CC = 0;	
+		}
+
+	elsif ($token =~ /^FEW/)	#addl if code is to prevent overwriting higher levels of cloud cover when lower levels come later in report.
+		{
+		if ($CC<=1)
+			{
+			$CC = 1;
+			}
+		}
+	
+	elsif ($token =~ /^SCT/)    #Check for SCT condition
+		{
+		if ($CC<=2)
+			{			
+			$CC = 2;
+			}
+		}
+	elsif ($token =~ /^BKN/)	#Check for BRK cloud condition
+		{
+		if ($CC<=3)
+                        {
+                        $CC = 3;
+                        }
+		}
+	elsif ($token =~ /^OVC/)	#OVC cloud condition, highest density level, should not be overwritten by other conditions.
+		{
+		if ($CC<=4)
+			{	
+			$CC = 4; 
+			}
+		}
+	       
+	else                                                    #Ignores remaining data
+                {
+                }
+
+        }#end while
+
+   if ($CC == -1)   #if there is no cloud cover data reported, reset $CC to no value so table will read NULL.
+	{
+	$CC = 'NULL';
+	}
+
+   if ($TP =~/^(NULL)/)
+	{
+	}
+   elsif ($DP =~ /^(NULL)/)
+	{
+	}	
+   else
+	{	
+	$HU1 = 6.11*10.0**(7.5*$DP/(237.7+$DP));
+   	$HU2 = 6.11*10.0**(7.5*$TP/(237.7+$DP));
+   	$HU = ($HU1/$HU2)*100;
+	}
+   @metar = ($NC,$RT,$PT,$TP,$HU,$DP,$WV,$WD,$BR,$VI,$CC);
+   
+}#end sub
+}#end counthour
+}#end countday
+}#end countmonth
+}#end countyear

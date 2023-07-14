@@ -1,0 +1,62 @@
+#!/bin/bash
+
+QUERY="mysql -hollie -uolypen -ppower123 olypen --batch -e"
+TABLE="mysql -hollie -uolypen -ppower123 olypen --html -e"
+
+if [ -f /var/lock/daily.lck ]; then
+	echo "(na)"
+	exit
+fi
+if [ -f $1.html ]; then
+	age=$(( $(date +'%s') - $(stat -c '%Y' $1.html) ))
+else
+	age=9999
+fi
+
+if [ $age -gt 60 ]; then 
+	case $1 in
+	clallam)
+		mkt_id=`echo $($QUERY "select max(mkt_id) as '' from clear")`
+		posttime=`echo $($QUERY "select date_format(max(posttime),'%a %b %d %H:%i') as '' from clear")`
+		price=`echo $($QUERY "select round(price,2) as '' from clear order by posttime desc limit 1")`
+		feeder=`echo $($QUERY "select round(capacity,0) as '' from feeder_status order by posttime desc limit 1")`
+		max=$feeder
+		offers=`echo $($QUERY "select round(sum(quantity),0) as '' from sell where mkt_id=$mkt_id")`
+		[ $offers -gt $max ] && max=$offers
+		asks=`echo $($QUERY "select round(sum(quantity),0) as '' from buy where mkt_id=$mkt_id")`
+		[ $asks -gt $max ] && max=$asks
+		load=`echo $($QUERY "select round(quantity,0) as '' from clear where mkt_id=$mkt_id")`
+		[ $load -gt $max ] && max=$load
+		width=100
+		feeder_p=$(( $feeder * $width / $max )) ; feeder_n=$(( $width - $feeder_p ))
+		offers_p=$(( $offers * $width / $max )) ; offers_n=$(( $width - $offers_p ))
+		asks_p=$(( $asks * $width / $max )) ; asks_n=$(( $width - $asks_p ))
+		load_p=$(( $load * $width / $max )) ; load_n=$(( $width - $load_p ))
+		echo "<h2>Clallam</h2>" >$1.html
+		echo "<center><u>$posttime</u><br>Price: <b>\$$price /MWh</b></center>" >>$1.html
+	        echo "Feeder <img src=green.bmp border=0 height=10 width=$feeder_p alt='$feeder kW'><img src=blue.bmp border=0 height=10 width=$feeder_n><br>" >>$1.html
+	        echo "Supply <img src=green.bmp border=0 height=10 width=$offers_p alt='$offers kW'><img src=blue.bmp border=0 height=10 width=$offers_n><br>" >>$1.html
+	        echo "Demand <img src=green.bmp border=0 height=10 width=$asks_p alt='$asks kW'><img src=blue.bmp border=0 height=10 width=$asks_n><br>" >>$1.html
+		echo -n "Load <img " >>$1.html
+		if [ $load -lt $feeder ]; then
+		        echo -n "src=green.bmp" >>$1.html
+		elif [ $load -gt $feeder ]; then
+		        echo -n "src=red.bmp" >>$1.html
+		else
+		        echo -n "src=yellow.bmp" >>$1.html
+		fi
+		echo " border=0 height=10 width=$load_p alt='$load kW'><img src=blue.bmp border=0 height=10 width=$load_n><br>" >>$1.html
+		echo "|<br>$max kW" >>$1.html
+        	;;
+	yakima)
+		echo "<h2>Yakima</h2>" >$1.html
+		echo `$QUERY "select date_format(posttime,'<center><u>%a %b %d %H:%i</u></center>') as '', concat('Duration: <b>',sec_to_time(count(*)/10),'</b><br>') as '', concat('Minimum freq: <b>',round(min(freq),3),' Hz</b><br>') as '', \"Responses: <b>0.0%</b><br>\" as '', \"Load shed: <b>0 kW</b><br>\" as '' from gridfreq where freq < 59.95 group by floor(readtime/3600) order by readtime desc limit 1"` >>$1.html
+		;;
+	gresham)
+		echo "<h2>Gresham</h2>" >$1.html
+		echo `$QUERY "select date_format(posttime,'<center><u>%a %b %d %H:%i</u></center>') as '', concat('Duration: <b>',sec_to_time(count(*)/10),'</b><br>') as '', concat('Minimum freq: <b>',round(min(freq),3),' Hz</b><br>') as '', \"Responses: <b>0.0%</b><br>\" as '', \"Load shed: <b>0 kW</b><br>\" as '' from gridfreq where freq < 59.95 group by floor(readtime/3600) order by readtime desc limit 1"` >>$1.html
+		;;
+	esac
+fi
+cat $1.html
+

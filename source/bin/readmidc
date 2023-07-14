@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# this script downloads the latest price index from Dow Jones
+# and computes a price forecast for the coming day
+#
+
+ETC="$HOME/etc"
+. $ETC/logger.conf
+
+LCK="/var/lock/olypen/dowjones.lck"
+DAILYLCK="/var/lock/daily.lck"
+RUNLCK="$HOME/lck/dowjones.lck"
+
+if [ -f $LCK -o -f $DAILYLCK -o -f $RUNLCK ]; then
+	exit
+else
+	trap "rm -f $LCK" EXIT
+	echo "$(date): $$" >$LCK
+fi
+
+# read the latest index from Dow Jones
+. $HOME/etc/dowjones.conf || exit
+cd $HOME/raw/midc || exit
+CSVFILE="$TEMPLATE.csv"
+wget $WGETOPTS $PROTO://$SERVER/$CSVFILE -O $CSVFILE --user=$USER --password=$PASSWORD || $LOGGER_ERROR "wget failed for $PROTO://$SERVER/$CSVFILE"
+
+# load DJ data into database
+. $HOME/etc/mysql.conf || exit
+if [ -s $CSVFILE ]; then
+	SQLFILE="$TEMPLATE.sql"
+	if [ ! -s $SQLFILE -o $CSVFILE -nt $SQLFILE ]; then
+		$LOGGER_NOTICE "uploading data from $CSVFILE via $SQLFILE to mysql"
+		$HOME/bin/djndx2sql $CSVFILE > $SQLFILE || $LOGGER_ERROR "conversion from Dow Jones CSV to SQL failed"
+		mysql $MYSQLOPTS <$SQLFILE || $LOGGER_ERROR "mysql update failed for $SQLFILE"
+		echo "$(date +'%Y-%m-%d %H:%M:%S %Z'): $CSVFILE -> olypen/midc" >$HOME/log/dowjones.log
+	fi
+fi
+

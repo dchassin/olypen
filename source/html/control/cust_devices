@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ ! -z "$QUERY_STRING" ]; then
+	eval `echo $QUERY_STRING | sed -e 's/%..//g' | sed -e 's/&/;/g'`
+	pnnl_acct_id=${pnnl_acct_id//[^0-9]/}
+	invensys_acct_id=${invensys_acct_id//[^0-9]/}
+	gateway_ip_address=${gateway_ip_address//[^0-9.]/}
+	
+	mysql -hollie -uolypen -ppower123 olypen -e "update customer set
+		invensys_acct_id = $invensys_acct_id,
+		gateway_ip_address = '$gateway_ip_address'
+		where pnnl_acct_id = $pnnl_acct_id limit 1
+		" || error="table update failed."
+	
+	if [ -z "$error" ]; then
+		echo "<h3><font color=blue>Invensys acct no. $invensys_acct_id updated ok</font></h3>"
+	else
+		echo "<h3><font color=red>Invensys acct no. $invensys_acct_id updated error ($error)</font></h3>"
+	fi
+fi
+
+echo '<h3>Customer equipment information</h3>'
+mysql -hollie -uolypen -ppower123 olypen --html -e "select 
+	concat(\"<form method=get>\",invensys_acct_id) as 'Invensys id', 
+	rec_last_update_date as 'As of',  
+	if(gateway_ip_address!='',concat('<input type=hidden name=gateway_ip_address value=',gateway_ip_address,'>',gateway_ip_address),'&nbsp;') as 'Gateway IP',
+	concat(\"<input type=text name=pnnl_acct_id value='\",ifnull(pnnl_acct_id,''),\"' maxlength=5 size=5>\") as 'PNNL id',
+	concat(\"<input type=hidden name=invensys_acct_id maxlength=5 size=4 value=\",invensys_acct_id,\"><input type=submit value=Set>\",
+		\"<input type=reset value=Reset></form>\") as ''
+	from customer where invensys_acct_id is not null order by invensys_acct_id"
+
+echo "<hr> <cite>Generated $(date +'%Y-%m-%d %H:%M') by http://$SERVER_NAME/$DOCUMENT_URI</cite> </body> </html>"
+
+if [ "$debug" == "yes" ]; then
+	echo "<pre>$(printenv)</pre>"
+fi

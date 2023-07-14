@@ -1,0 +1,20 @@
+#!/bin/bash
+
+month="$1"
+if [ -z "$day" ]; then
+	month="date_format(now(),\"%Y-%m\")"
+fi
+
+MYSQL="mysql -hollie -uolypen -ppower123 olypen -e"
+monlist=$($MYSQL "select distinct(date_format(posttime,'%Y-%m')) as '' from clear order by posttime desc")
+daylist=$($MYSQL "select distinct(date_format(posttime,'%Y-%m-%d')) as '' from clear order by posttime desc")
+
+echo "<h3>Months</h3>"
+for i in $monlist; do
+	echo "<a href=\"/cgi-bin/billing?month=$i\" target=main>$i</a><br>"
+done
+echo "</td><td style=\"background-color: white; vertical-align: top; text-align: left\"><h3>Daily</h3>"
+for i in $daylist; do
+	echo "<a href=\"/cgi-bin/billing?date=$i\" target=main>$i</a><br>"
+done
+

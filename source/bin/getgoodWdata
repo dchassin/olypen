@@ -1,0 +1,19 @@
+#!/bin/bash
+
+ETC="$HOME/etc"
+RAW="$HOME/raw/goodwatts"
+MYSQLOPTS="-hollie -uolypen -ppower123"
+. $ETC/logger.conf || exit
+. $HOME/etc/mysql.conf || exit
+cd $HOME/raw/goodwatts
+
+today=$(date +%Y-%m-%d)
+
+yesterday=$(date -d "1970-01-01 $(($(date -d "${today}" "+%s") - $((60 * 60 * 24)))) sec" "+%m%d%y")
+
+file=$'gfa_'$yesterday'.csv'
+
+wget -cq http://www.goodwatts.com/gatewayfiles/$file
+
+mysql $MYSQLOPTS -e "load data local infile '$file' into table goodwatts fields terminated by ','" || $LOGGER_ERROR "mysql post failed for $file"
+ 

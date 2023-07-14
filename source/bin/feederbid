@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# this script calculates the next feeder bid
+#
+
+ETC=$HOME/etc
+. $ETC/logger.conf
+
+. $HOME/etc/mysql.conf || exit
+error=`mysql $MYSQLOPTS <$HOME/bin/feeder.sql 2>&1 >/dev/null` || $LOGGER_ERROR "feeder bid procedure failed: $error"
+
+if [ -f $HOME/test/bid ]; then
+	date >>$HOME/log/test-bid.log
+	$HOME/test/bid >>$HOME/log/test-bid.log || $LOGGER_ERROR "test bid procedure failed"
+fi

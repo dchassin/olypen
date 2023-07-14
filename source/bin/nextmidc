@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# this script calculates the price of MIDC for the next hour
+#
+
+ETC=$HOME/etc
+. $ETC/logger.conf
+
+LCK="/var/lock/olypen/nextmidc.lck"
+DAILYLCK="/var/lock/daily.lck"
+RUNLCK="$HOME/lck/nextmidc.lck"
+
+if [ -f $LCK -o -f $DAILYLCK -o -f $RUNLCK ]; then
+	exit
+else
+	trap "rm -f $LCK" EXIT
+	echo "$(date): $$" >$LCK
+fi
+
+# get the current hour
+nh=$(($(date +'%k')+1))
+. $ETC/mysql.conf || exit
+
+if [ $nh -le 6 -o $nh -ge 23 ]; then
+	mysql $MYSQLOPTS <$HOME/bin/offpeak.sql >/dev/null || $LOGGER_ERROR "offpeak MIDC price calculation failed"
+else
+	mysql $MYSQLOPTS <$HOME/bin/onpeak.sql >/dev/null || $LOGGER_ERROR "onpeak MIDC price calculation failed"
+fi
+
+echo "$(date +'%Y-%m-%d %H:%M:%S %Z'): hour $nh" >$HOME/log/nextmidc.log

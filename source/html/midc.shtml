@@ -1,0 +1,62 @@
+<html>
+<head>
+<!--#include file="title.conf"-->
+<meta http-equiv="expires" content="0">
+<!--#exec cmd="date +'<meta http-equiv=\"refresh\" content=\"'$(( ($(date +\"%s\")/60)*60+60 + 10 - $(date +\"%s\") ))'\">'"-->
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<body>
+<!--#exec cmd="./navbar 'Mid Columbia Supply' Wholesale"-->
+
+<table>
+<tr> <td valign=bottom style="text-align: left"> <nobr>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=2 alt=\",if(report_value>0,round(report_value,2),\"(na)\"),\" height=\",if(report_value>0,report_value,1),\">\") as `` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 7 day),\"%Y-%m-%d\") ' --batch"-->
+</nobr></td><td valign=bottom style="text-align: left"><nobr>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=2 alt=\",if(report_value>0,round(report_value,2),\"(na)\"),\" height=\",if(report_value>0,report_value,1),\">\") as `` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 6 day),\"%Y-%m-%d\") ' --batch"-->
+</nobr></td><td valign=bottom style="text-align: left"><nobr>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=2 alt=\",if(report_value>0,round(report_value,2),\"(na)\"),\" height=\",if(report_value>0,report_value,1),\">\") as `` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 5 day),\"%Y-%m-%d\") ' --batch"-->
+</nobr></td><td valign=bottom style="text-align: left"><nobr>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=2 alt=\",if(report_value>0,round(report_value,2),\"(na)\"),\" height=\",if(report_value>0,report_value,1),\">\") as `` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 4 day),\"%Y-%m-%d\") ' --batch"-->
+</nobr></td><td valign=bottom style="text-align: left"><nobr>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=2 alt=\",if(report_value>0,round(report_value,2),\"(na)\"),\" height=\",if(report_value>0,report_value,1),\">\") as `` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 3 day),\"%Y-%m-%d\") ' --batch"-->
+</nobr></td><td valign=bottom style="text-align: left"><nobr>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=2 alt=\",if(report_value>0,round(report_value,2),\"(na)\"),\" height=\",if(report_value>0,report_value,1),\">\") as `` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 2 day),\"%Y-%m-%d\") ' --batch"-->
+</nobr></td><td valign=bottom style="text-align: left"><nobr>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=2 alt=\",if(report_value>0,round(report_value,2),\"(na)\"),\" height=\",if(report_value>0,report_value,1),\">\") as `` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 1 day),\"%Y-%m-%d\") ' --batch"-->
+</nobr></td><td valign=bottom style="text-align: left"><nobr>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'SELECT concat(\"<img src=green.bmp border=0 width=2 alt=\",if(report_value>0,round(report_value,2),\"(na)\"),\" height=\",if(report_value>0,report_value,1),\">\") as `` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 0 day),\"%Y-%m-%d\") ' --batch"-->
+</nobr></td></tr>
+<tr>
+<th valign=bottom><!--#exec cmd="./datecalc -$((7*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((6*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((5*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((4*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((3*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -$((2*86400)) '%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc -86400 'Yesterday<br>%a<br>%m/%d'"--></th>
+<th valign=bottom><!--#exec cmd="./datecalc 0 'Today<br>%a<br>%m/%d'"--></th>
+</tr>
+<tr>
+<td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(report_time,\"%H:%i\") as `Hour`, if(report_value is null,\"-\",round(report_value,2)) as `Price` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 7 day),\"%Y-%m-%d\") order by report_type desc' --html"-->
+<td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(report_time,\"%H:%i\") as `Hour`, if(report_value is null,\"-\",round(report_value,2)) as `Price` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 6 day),\"%Y-%m-%d\") order by report_type desc' --html"-->
+<td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(report_time,\"%H:%i\") as `Hour`, if(report_value is null,\"-\",round(report_value,2)) as `Price` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 5 day),\"%Y-%m-%d\") order by report_type desc' --html"-->
+<td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(report_time,\"%H:%i\") as `Hour`, if(report_value is null,\"-\",round(report_value,2)) as `Price` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 4 day),\"%Y-%m-%d\") order by report_type desc' --html"-->
+<td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(report_time,\"%H:%i\") as `Hour`, if(report_value is null,\"-\",round(report_value,2)) as `Price` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 3 day),\"%Y-%m-%d\") order by report_type desc' --html"-->
+<td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(report_time,\"%H:%i\") as `Hour`, if(report_value is null,\"-\",round(report_value,2)) as `Price` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 2 day),\"%Y-%m-%d\") order by report_type desc' --html"-->
+</td><td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(report_time,\"%H:%i\") as `Hour`, if(report_value is null,\"-\",round(report_value,2)) as `Price` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 1 day),\"%Y-%m-%d\") order by report_type desc' --html"-->
+</td><td valign=top style="text-align: center">
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(report_time,\"%H:%i\") as `Hour`, if(report_value is null,\"-\",round(report_value,2)) as `Price` from midc where report_type=\"OLYM\" and date_format(report_time,\"%Y-%m-%d\") = date_format(date_sub(now(),interval 0 day),\"%Y-%m-%d\") order by report_type desc' --html"-->
+</td></tr>
+</table>
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

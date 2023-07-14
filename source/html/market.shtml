@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>Olympic Peninsula Server Status</title>
+<meta http-equiv="expires" content="0">
+<!--#exec cmd="date +'<meta http-equiv=\"refresh\" content=\"'$(( ($(date +\"%s\")/3600)*3600+3600 + 15 - $(date +\"%s\") ))'\">'"-->
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<html>
+
+<h1>Market History</h1>
+<h2>As of <!--#exec cmd="date"--></h2>
+<table border=0 width="100%">
+<tr><td style="background-color: white; vertical-align: top; text-align: left">
+<h3>Clears</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select date_format(min(posttime),\"%H:00\") as `Hour`, count(*) as `Markets<br>cleared`, round(min(quantity),1) as `Min qty<br>(kW)`, round(max(quantity),1) as `Max qty<br>(kW)`, round(min(price),2) as `Min price<br>($/MWh)`, round(max(price),2) as `Max price<br>($/MWh)`, round(min((price-avg24)/std24),1) as `Min &sigma;`, round(max((price-avg24)/std24),1) as `Max &sigma;` from olypen.clear where posttime > date_sub(now(),interval 24 hour) group by floor(unix_timestamp(posttime)/3600) order by posttime desc ' --html"-->
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 -e 'select date_format(min(posttime),\"%m/%d\") as `Day`, count(*) as `Markets<br>cleared`, round(min(quantity),1) as `Min qty<br>(kW)`, round(max(quantity),1) as `Max qty<br>(kW)`, round(min(price),2) as `Min price<br>($/MWh)`, round(max(price),2) as `Max price<br>($/MWh)`, round(min((price-avg24)/std24),1) as `Min &sigma;`, round(max((price-avg24)/std24),1) as `Max &sigma;` from olypen.clear where posttime > date_sub(now(),interval 28 day) group by floor(unix_timestamp(posttime)/86400) order by posttime desc ' --html"-->
+</td><td style="background-color: white; vertical-align: top; text-align: left">
+<h3>Buys</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(min(posttime), \"%H:00\") as `Hour`, round(min(price),2) as `Low ask<BR>($/MWh)`, round(avg(price),2) as `Avg ask<BR>($/MWh)`, round(std(price),2) as `Std ask<BR>($/MWh)`, round(max(price),2) as `High ask<BR>($/MWh)`, round(min(quantity),2) as `Low qty<BR>(kW)`, round(avg(quantity),2) as `Avg qty<BR>(kW)`, round(std(quantity),2) as `Std qty<BR>(kW)`, round(max(quantity),2) as `High qty<BR>(kW)`, count(*) as `Bids` from buy where unix_timestamp(posttime) > floor(unix_timestamp(date_sub(now(), interval 1 day))/3600)*3600 and price<9999 group by floor(unix_timestamp(posttime)/3600) order by posttime desc' --html"-->
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(min(posttime), \"%m/%d\") as `Day`, round(min(price),2) as `Low ask<BR>($/MWh)`, round(avg(price),2) as `Avg ask<BR>($/MWh)`, round(std(price),2) as `Std ask<BR>($/MWh)`, round(max(price),2) as `High ask<BR>($/MWh)`, round(min(quantity),2) as `Low qty<BR>(kW)`, round(avg(quantity),2) as `Avg qty<BR>(kW)`, round(std(quantity),2) as `Std qty<BR>(kW)`, round(max(quantity),2) as `High qty<BR>(kW)`, count(*) as `Bids` from buy where unix_timestamp(posttime) > floor(unix_timestamp(date_sub(now(), interval 28 day))/86400)*86400 and price<9999 group by floor(unix_timestamp(posttime)/86400) order by posttime desc' --html"-->
+</td><td style="background-color: white; vertical-align: top; text-align: left">
+<h3>Sells</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(min(posttime), \"%H:00\") as `Hour`, round(min(price),2) as `Low offer<BR>($/MWh)`, round(avg(price),2) as `Avg offer<BR>($/MWh)`, round(std(price),2) as `Std offer<BR>($/MWh)`, round(max(price),2) as `High offer<BR>($/MWh)`, round(min(quantity),2) as `Low qty<BR>(kW)`, round(avg(quantity),2) as `Avg qty<BR>(kW)`, round(std(quantity),2) as `Std qty<BR>(kW)`, round(max(quantity),2) as `High qty<BR>(kW)`, count(*) as `Bids` from sell where unix_timestamp(posttime) > floor(unix_timestamp(date_sub(now(), interval 1 day))/3600)*3600 and price<9999 group by floor(unix_timestamp(posttime)/3600) order by posttime desc' --html"-->
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen -e 'select date_format(min(posttime), \"%m/%d\") as `Day`, round(min(price),2) as `Low offer<BR>($/MWh)`, round(avg(price),2) as `Avg offer<BR>($/MWh)`, round(std(price),2) as `Std offer<BR>($/MWh)`, round(max(price),2) as `High offer<BR>($/MWh)`, round(min(quantity),2) as `Low qty<BR>(kW)`, round(avg(quantity),2) as `Avg qty<BR>(kW)`, round(std(quantity),2) as `Std qty<BR>(kW)`, round(max(quantity),2) as `High qty<BR>(kW)`, count(*) as `Bids` from sell where unix_timestamp(posttime) > floor(unix_timestamp(date_sub(now(), interval 28 day))/86400)*86400 and price<9999 group by floor(unix_timestamp(posttime)/86400) order by posttime desc' --html"-->
+</td></tr>
+</table>
+
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

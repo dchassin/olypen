@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>Olympic Peninsula Demonstation Customer Configuration</title>
+<link rel="stylesheet" type="text/css" href="/standard.css">
+</head>
+<body>
+
+<!--#exec cmd="../navbar 'Customer preferences' Customers"-->
+
+<h3>New customer</h3>
+<table border=1>
+<tr><th>Customer Id</th><th>First choice</th><th>Second choice</th><th>Utility</th><th></th></tr>
+<tr><td>
+<form action=/cgi-bin/cust_pref method=get>
+<input type=text name=pnnl_acct_id maxlength=5 size=5> 
+</td><td>
+<input type=radio name=first_choice value=NULL checked>None
+<input type=radio name=first_choice value=FIXED >Fixed
+<input type=radio name=first_choice value=TOU >Time-of-use
+<input type=radio name=first_choice value=RTP >Real-time
+</td><td>
+<input type=radio name=second_choice value=NULL checked>None
+<input type=radio name=second_choice value=FIXED >Fixed
+<input type=radio name=second_choice value=TOU >Time-of-use
+<input type=radio name=second_choice value=RTP >Real-time
+</td><td>
+<input type=text name=utility maxlength=1 size=1>
+</td><td>
+<input type=submit value="Add New">
+<input type=reset>
+</form>
+</tr></table>
+
+<h3>Existing customers [<a href="/cgi-bin/cust_pref.csv">Download to Excel</a>]</h3>
+<!--#exec cmd="mysql -hollie -uolypen -ppower123 olypen --html -e 'select 
+	concat(\"<form action=/cgi-bin/cust_pref method=get>\",cust_contract_preference.pnnl_acct_id) as `Customer`, 
+	updatetime as `As of`,  
+	concat(\"<input type=radio name=first_choice value=NULL \",if(first_choice is null,\"checked\",\"\"),\">None\",
+		\"<input type=radio name=first_choice value=FIXED \",if(first_choice=\"FIXED\",\"checked\",\"\"),\">Fixed\",
+		\"<input type=radio name=first_choice value=TOU \",if(first_choice=\"TOU\",\"checked\",\"\"),\">Time-of-use\",
+		\"<input type=radio name=first_choice value=RTP \", if(first_choice=\"RTP\",\"checked\",\"\"),\">Real-time\") as `First choice`, 
+	concat(\"<input type=radio name=second_choice value=NULL \",if(second_choice is null,\"checked\",\"\"),\">None\",
+		\"<input type=radio name=second_choice value=FIXED \",if(second_choice=\"FIXED\",\"checked\",\"\"),\">Fixed\",
+		\"<input type=radio name=second_choice value=TOU \",if(second_choice=\"TOU\",\"checked\",\"\"),\">Time-of-use\",
+		\"<input type=radio name=second_choice value=RTP \", if(second_choice=\"RTP\",\"checked\",\"\"),\">Real-time\") as `Second choice`, 
+	concat(\"<input type=text name=utility value=\",utility,\" maxlength=1 size=1>\") as `Utility`,
+	concat(\"<input type=hidden name=cust_contract_preference.pnnl_acct_id maxlength=5 size=4 value=\",cust_contract_preference.pnnl_acct_id,\"><input type=submit value=Set>\",
+		\"<input type=reset value=Reset></form>\") as ``
+	from cust_contract_preference order by updatetime desc'"-->
+
+<hr>
+<cite>Copyright &copy; <!--#exec cmd="date +'%Y'"-->, Pacific Northwest National Laboratory</cite>
+</body>
+</html>
+

@@ -1,0 +1,15 @@
+#!/bin/bash
+LCK="/var/lock/status.lck"
+DIR="$HOME/status"
+touch $LCK
+trap "[ $$ != \"$(< $LCK)\" ] || rm -f $LCK" EXIT
+cd $DIR
+if [ "$(< $LCK)" != "" ]; then
+	exit
+fi
+echo $$ >$LCK
+for i in *.s; do
+	[ -x $i -a ! "$i" == $(basename $0) -a ! -d $i ] && $i &
+done
+wait
+[ $$ != "$(< $LCK)" ] || rm -f $LCK

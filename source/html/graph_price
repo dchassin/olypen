@@ -1,0 +1,35 @@
+#!/bin/bash
+
+OFFSET=${1:-0}
+
+DAY=$(./datecalc $(($OFFSET*86400)) "%Y-%m-%d")
+START="$DAY 0:00:00"
+STOP="$DAY 23:59:59"
+
+MYSQL="mysql -hollie -uolypen -ppower123 olypen --batch -e"
+
+if [ $OFFSET -le -2 ]; then
+	if [ $OFFSET -le -5 ]; then
+		GRAPH=$(echo $($MYSQL "SELECT 
+			concat('<img src=blue.bmp width=8 height=',if(min(price)>0,round(min(price),0)/5,1),' alt=',round(min(price),2),'>') as '' ,
+			concat('<img src=green.bmp width=8 height=',if(avg(price)>0,round(if(avg(price)<1000,avg(price),1000),0)/5,1),' alt=',round(avg(price),2),'>') as '' ,
+			concat('<img src=red.bmp width=8 height=',if(max(price)>0,round(if(max(price)<1000,max(price),1000),0)/5,1),' alt=',round(max(price),2),'>') as '',
+			concat('<img src=green.bmp width=8 height=',if(avg(price)>0,round(if(avg(price)<1000,avg(price),1000),0)/5,1),' alt=',round(avg(price),2),'>') as '' ,
+			concat('<img src=blue.bmp width=8 height=',if(min(price)>0,round(min(price),0)/5,1),' alt=',round(min(price),2),'>') as ''
+			FROM clear WHERE posttime between '$START' and '$STOP'"))
+	else
+		GRAPH=$(echo $($MYSQL "SELECT 
+			concat('<img src=blue.bmp width=1 height=',if(min(price)>0,round(min(price),0)/5,1),' alt=',round(min(price),2),'>') as '' ,
+			concat('<img src=green.bmp width=1 height=',if(avg(price)>0,round(if(avg(price)<1000,avg(price),1000),0)/5,1),' alt=',round(avg(price),2),'>') as '' ,
+			concat('<img src=red.bmp width=1 height=',if(max(price)>0,round(if(max(price)<1000,max(price),1000),0)/5,1),' alt=',round(max(price),2),'>') as '',
+			concat('<img src=green.bmp width=1 height=',if(avg(price)>0,round(if(avg(price)<1000,avg(price),1000),0)/5,1),' alt=',round(avg(price),2),'>') as '' ,
+			concat('<img src=blue.bmp width=1 height=',if(min(price)>0,round(min(price),0)/5,1),' alt=',round(min(price),2),'>') as '',
+			'<img src=white.bmp width=1 height=1>' as '' 
+			FROM clear WHERE posttime between '$START' and '$STOP' GROUP BY hour(posttime) ORDER BY posttime"))
+	fi
+else
+	GRAPH=$(echo $($MYSQL "SELECT concat('<img src=',if(minute(posttime)=0,'black.bmp','green.bmp'),' width=1 height=',if(price>0,round(price,0)/5,1),' alt=',round(price,2),'>') as '' FROM clear WHERE posttime between '$START' and '$STOP' ORDER BY posttime"))
+fi
+
+echo $GRAPH | sed -s 's/> </></g'
+

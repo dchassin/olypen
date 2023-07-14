@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+#
+use DBI;
+
+$dbh = DBI->connect("DBI:mysql:olypen","olypen","power123");
+
+# get db unit list
+$sth = $dbh->prepare('SELECT unit_id, capacity_kw, fuel_price, (unix_timestamp(license_end)-unix_timestamp(now()))/(unix_timestamp(license_end)-unix_timestamp(license_start)), license_hours, run_hours, annual_cost, startup_cost, shutdown_cost, state, (unix_timestamp(now())-unix_timestamp(statechange_time))/60 FROM dg WHERE state != "OFF" and now() between license_start and license_end and run_hours < license_hours')
+	or die "Couldn't prepare query for dg unit list: " . $dbh->errstr;
+$sth->execute() or die "Couldn't get total dg unit list: " . $sth->errstr;
+while (@data = $sth->fetchrow_array()) {
+	$unit_id = $data[0];
+	$capacity_kw = $data[1];
+	$fuel_cost = $data[2];
+	$license_left = $data[3];
+	$license_hours = $data[4];
+	$run_hours = $data[5];
+	$annual_cost = $data[6];
+	$startup_cost = $data[7];
+	$shutdown_cost = $data[8];
+	$state = $data[9];
+	$state_age = $data[10];
+
+	#printf "Unit=$unit_id: costs=(\$%.2f/MWh, \$%.2f/y), license=(%.1f%% rem, $run_hours/$license_hours hrs used), state=($state for $state_age mins)...\n", $fuel_cost, $annual_cost, $license_left*100;
+
+	if ($state eq 'RDY') {
+	#printf("    startup=(\$%.2f/MWh)\n", $startup_cost);
+		$bid = $fuel_cost + ($capacity_kw/1000)*$annual_cost*$license_left/($license_hours-$run_hours) + $startup_cost/($capacity_kw/1000)/12;
+
+
+	}
+	elsif ($state eq 'RUN') {
+
+	#printf("    shutdown=(\$%.2f/MWh)\n", $shutdown_cost);
+
+		$bid = $fuel_cost + ($capacity_kw/1000)*$annual_cost*$license_left/($license_hours-$run_hours);
+		if ($state_age < 60) {
+			$bid -= $shutdown_cost/($state_age/5);
+		}
+	}
+	else {
+		$bid='';
+		#printf "    unit state is unknown!!!\n";
+	}
+
+	if (bid ne '') {
+		#printf "    bid %.3fkW at \$%.2f/MWh\n", $capacity_kw, $bid;
+		$query = sprintf 'REPLACE INTO sell (seller_id, quantity, price) VALUES (%d, %.3f, %.2f)', $unit_id, $capacity_kw, $bid;
+		$sub = $dbh->prepare($query) or die "Couldn't prepare insert into sell: " . $dbh->errstr;
+		$sub->execute() or die "Couldn't execute insert into sell: " . $sub->errstr;
+	}
+}
+
