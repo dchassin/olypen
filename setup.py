@@ -18,7 +18,7 @@ except Exception:
 """.lstrip()
 
 setup(
-    use_scm_version={'write_to': os.path.join('sg2t', 'version.py'),
+    use_scm_version={'write_to': os.path.join('olypen', 'version.py'),
                      'write_to_template': VERSION_TEMPLATE},
 
 )
