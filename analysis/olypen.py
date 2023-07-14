@@ -43,7 +43,7 @@ import datetime as dt
 import requests
 
 DATASRC = "https://olypen.s3.us-west-2.amazonaws.com/data"
-DATADIR = "../data"
+DATADIR = "data"
 
 class OlypenException(Exception):
 	pass
@@ -428,6 +428,9 @@ class Olypen:
 		else:
 			return self.tables[name]
 
+	def __delitem__(self,name):
+		del self.tables[name]
+		
 	def _verbose(self,msg):
 		if self.VERBOSE:
 			print(msg,file=sys.stderr,flush=True)
@@ -481,12 +484,13 @@ class Olypen:
 		return data
 
 if __name__ == "__main__":
-	olypen = Olypen()
-	for name in olypen.directory:
+	repo = Olypen()
+	for name in repo.directory:
 		print(name,end='... ',file=sys.stderr,flush=True)
 		tic = dt.datetime.now()
-		data = olypen[name]
+		data = repo[name]
 		toc = dt.datetime.now()
 		t = (toc-tic).total_seconds()
 		n = len(data)
-		print(f"{n} records loaded in {t:.1f} seconds ({(n/t):.0f} records/second)",flush=True)
+		print(f"{n} records loaded in {t:.1f} seconds ({(n/t):.0f} records/second)",file=sys.stderr,flush=True)
+		del repo[name]
