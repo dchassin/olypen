@@ -19,7 +19,7 @@ Example
  'supplier_feeder_status', 'supplier_type', 'tou_prices', 'unit_type',
  'weather', 'weather_copa_hourly', 'weather_degree_hours',
  'weather_degree_month', 'weather_sites', 'weathernoaa']
->>> d['clear']
+>>> d.clear
                     posttime  quantity  price  avg24  std24  avg168  std168
 mkt_id                                                                     
 3812928  2006-04-01 00:00:00   140.183  33.77  43.07  21.02   43.73   14.50
@@ -53,135 +53,305 @@ DATEFORMAT = "%Y-%m-%d"
 TZNAME = "America/Los Angeles"
 TZOFFSET = -8
 TZSPEC = dt.timezone(dt.timedelta(hours=TZOFFSET),TZNAME)
+NAN = float('NaN')
 
 def datetime(str):
 	try:
-		return dt.datetime.strptime(str,DATETIMEFORMAT)
+		return dt.datetime.strptime(strna,DATETIMEFORMAT)
 	except:
-		return float('NaN')
+		return NAN
 
 def date(str):
 	try:
-		return dt.datetime.strptime(str,DATEFORMAT).date()
+		return dt.datetime.strptime(strna,DATEFORMAT).date()
 	except:
-		return float('NaN')
+		return NAN
 
-def boolstr(str):
+def boolna(str):
 	try:
 		return bool(int(str))
 	except:
-		return float('NaN')
+		return NAN
+
+def floatna(str):
+	try:
+		return float(str)
+	except:
+		return NAN
+
+def intna(str):
+	try:
+		return int(str)
+	except:
+		return NAN
+
+def strna(str):
+	return str if str != "\\N" else float('NaN')
 
 class Olypen:
 
 	VERBOSE = False
 	CONVERTERS = {
-		# only needed it any fields are not int, float, or str
+		# only needed it any fields are not intna, floatna, or str
 		"billing_trans" : {
-			"billing_trans_id" : int,
-			"customer_id" : int,
-			"trans_type_code" : str,
+			"billing_trans_id" : intna,
+			"customer_id" : intna,
+			"trans_type_code" : strna,
 			"stmt_start_date" : date,
 			"stmt_end_date" : date,
 			"billing_trans_date" : date,
-			"trans_amount" : float,
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
+			"trans_amount" : floatna,
 		},
 		"cust_billed_meter_usage" : {
-			"customer_id" : int,
+			"customer_id" : intna,
 			"start_time" : datetime,
 			"end_time" : datetime,
-			"meter_usage" : float,
-			"unit_type_code" : str,
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
+			"meter_usage" : floatna,
+			"unit_type_code" : strna,
 		},
 		"cust_contract_history" : {
-			"cust_contract_history_id" : int,
-			"customer_id" : int,
-			"contract_type_code" : str,
+			"cust_contract_history_id" : intna,
+			"customer_id" : intna,
+			"contract_type_code" : strna,
 			"start_date" : date,
 			"end_date" : date,
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
 		},
 		"cust_device" : {
-			"cust_device_id" : int, 
-			"customer_id" : int, 
-			"device_type_id" : int, 
-			"instance_id" : int,
-			"rec_last_update_date" : datetime, 
-			"rec_create_date" : datetime,
+			"cust_device_id" : intna, 
+			"customer_id" : intna, 
+			"device_type_id" : intna, 
+			"instance_id" : intna,
 		},
 		"cust_dryer_config" : {
-			"cust_dryer_config_id" : int,
-			"cust_device_id" : int,
-			"kfactor" : float,
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
+			"cust_dryer_config_id" : intna,
+			"cust_device_id" : intna,
+			"kfactor" : floatna,
 		},
 		"cust_dryer_trans" : {
-			"cust_dryer_trans_id" : int,
-			"cust_dryer_config_id" : int,
-			"meter_unit_type_code" : str,
-			"demand_unit_type_code" : str,
+			"cust_dryer_trans_id" : intna,
+			"cust_dryer_config_id" : intna,
+			"meter_unit_type_code" : strna,
+			"demand_unit_type_code" : strna,
 			"read_time" : datetime,
-			"demand" : float,
-			"meter_reading" : float,
-			"is_overridden" : boolstr,
-			"is_on" : boolstr,
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
+			"demand" : floatna,
+			"meter_reading" : floatna,
+			"is_overridden" : boolna,
+			"is_on" : boolna,
 		},
 		"cust_meter_trans" : {
-			"cust_meter_trans_id" : int,
-			"cust_meter_config_id" : int,
-			"meter_unit_type_code" : str,
-			"demand_unit_type_code" : str,
+			"cust_meter_trans_id" : intna,
+			"cust_meter_config_id" : intna,
+			"meter_unit_type_code" : strna,
+			"demand_unit_type_code" : strna,
 			"read_time" : datetime,
-			"demand" : float,
-			"meter_reading" : float,
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
+			"demand" : floatna,
+			"meter_reading" : floatna,
 		},
 		"cust_meter_trans" : {
-			"cust_meter_trans_id" : int,
-			"cust_device_id" : int,
-			"meter_unit_type_code" : str,
-			"demand_unit_type_code" : str,
+			"cust_meter_trans_id" : intna,
+			"cust_device_id" : intna,
+			"meter_unit_type_code" : strna,
+			"demand_unit_type_code" : strna,
 			"read_time" : datetime,
-			"demand" : float,
-			"meter_reading" : float,
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
+			"demand" : floatna,
+			"meter_reading" : floatna,
 		},
 		"cust_tstat_config" : {
-			"cust_tstat_config_id": int,
-			"cust_device_id": int,
-			"home_mode_type_id": int,
-			"cooling_temp_set": float,
-			"cooling_temp_max": float,
-			"cooling_temp_min": float,
-			"heating_temp_set": float,
-			"heating_temp_max": float,
-			"heating_temp_min": float,
-			"kts": float,
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
+			"cust_tstat_config_id": intna,
+			"cust_device_id": intna,
+			"home_mode_type_id": intna,
+			"cooling_temp_set": floatna,
+			"cooling_temp_max": floatna,
+			"cooling_temp_min": floatna,
+			"heating_temp_set": floatna,
+			"heating_temp_max": floatna,
+			"heating_temp_min": floatna,
+			"kts": floatna,
 		},
 		"cust_tstat_trans" : {
-			"cust_tstat_trans_id" : int,
-			"cust_tstat_config_id" : int,
-			"meter_unit_type_code" : str,
-			"demand_unit_type_code" : str,
-			"heat_cool_mode_id" : int,
+			"cust_tstat_trans_id" : intna,
+			"cust_tstat_config_id" : intna,
+			"meter_unit_type_code" : strna,
+			"demand_unit_type_code" : strna,
+			"heat_cool_mode_id" : intna,
 			"read_time" : datetime,
-			"temp_current" : float,
-			"demand" : float,
-			"meter_reading" : float,	
-			"rec_create_date" : datetime,
-			"rec_last_update_date" : datetime,
+			"temp_current" : floatna,
+			"demand" : floatna,
+			"meter_reading" : floatna,	
+		},
+		"dashboard_data" : {
+			"readtime" : datetime,
+			"loadqty" : floatna,
+			"temperature" : floatna,
+		},
+		"dev_type_comfort_level" : {
+			"dev_type_comfort_level_id" : intna,
+			"device_type_id" : intna,
+			"comfort_level_desc" : strna,
+			"comfort_value" : floatna,
+		},
+		"device_type" : {
+			"device_type_id" : intna,
+			"device_type_code" : strna,
+			"device_type_desc" : strna,
+		},
+		"experiment" : {
+		    "experiment_code" : strna,
+		    "experiment_desc" : strna,
+		    "start_date" : datetime,
+		},
+		"experiment_participant" : {
+		    "experiment_participant_id" : intna,
+		    "customer_id" : intna,
+		    "experiment_code" : strna,
+		    "signup_date" : date,
+		    "participation_start_date" : date,
+		},
+		"fixed_price" : {
+		    "fixed_price_id" : intna,
+		    "startdate" : date,
+		    "enddate" : date,
+		    "price" : floatna,
+		    "unit_type_code" : strna,
+		},
+		"home_mode_type" : {
+		    "home_mode_type_id" : intna,
+		    "home_mode_type_code" : strna,
+		    "home_mode_type_desc" : strna,
+		},
+		"invensys_meter" : {
+		    "customer_id" : intna,
+		    "read_time" : datetime,
+		    "meter_id" : intna,
+		    "meter_reading" : floatna,
+		},
+		"invensys_weather" : {
+		    "invensys_acct_id" : intna,
+		    "zipcode" : intna,
+		    "read_time" : datetime,
+		    "temperature" : floatna,
+		},
+		"midc" : {
+		    "report_time" : datetime,
+		    "report_type" : strna,
+		    "report_value" : floatna,
+		},
+		"noaa_weather_station" : {
+		    "noaacode" : strna,
+		    "state" : strna,
+		    "location" : strna,
+		},
+		"prices" : {
+		    "mkt_id" : intna,
+		    "posttime" : datetime,
+		    "wholesale" : floatna,
+		    "ctrl_price" : floatna,
+		    "fixed_price" : floatna,
+		    "tou_price" : floatna,
+		    "rtp_price" : floatna,
+		},
+		"sell" : {
+		    "supplier_id" : intna,
+		    "posttime" : datetime,
+		    "mkt_id" : intna,
+		    "quantity" : floatna,
+		    "price" : floatna,
+		},
+		"supplier" : {
+		    "supplier_id" : intna,
+		    "supplier_type_code" : strna,
+		    "supplier_name" : strna,
+		    "is_active" : boolna,
+		    "capacity_kw" : floatna,
+		    "fuel_price" : floatna,
+		    "fuel_price_unit_code" : strna,
+		    "license_start" : datetime,
+		    "license_end" : datetime,
+		    "license_hours" : floatna,
+		    "run_hours" : floatna,
+		    "annual_cost" : floatna,
+		    "startup_cost" : floatna,
+		    "shutdown_cost" : floatna,
+		    "state_type_code" : strna,
+		    "state_type_desc" : strna,
+		    "statechange_time" : datetime,
+		    "dg_updatetime" : datetime,
+		},
+		"supplier_feeder_limit" : {
+		    "supplier_id" : intna,
+		    "start_date" : datetime,
+		    "end_date" : datetime,
+		    "capacity" : floatna,
+		},
+		"supplier_feeder_status" : {
+		    "supplier_id" : intna,
+		    "posttime" : datetime,
+		    "updatetime" : datetime,
+		    "status" : strna,
+		    "capacity" : floatna,
+		},
+		"supplier_type" : {
+		    "supplier_type_code" : strna,
+		    "supplier_type_desc" : strna,
+		},
+		"tou_prices" : {
+		    "tou_prices_id" : intna,
+		    "startdate" : date,
+		    "enddate" : date,
+		    "hour" : intna,
+		    "critical_price" : floatna,
+		    "price" : floatna,
+		    "unit_type_code" : strna,
+		},
+		"unit_type" : {
+		    "unit_type_code" : strna,
+		    "unit_type_abbrev" : strna,
+		    "unit_type_desc" : strna,
+		},
+		"weather" : {
+		    "zipcode" : intna,
+		    "readtime" : datetime,
+		    "posttime" : datetime,
+		    "temperature" : floatna,
+		    "humidity" : floatna,
+		    "dewpoint" : floatna,
+		    "windvel" : floatna,
+		    "winddir" : strna,
+		    "barometer" : floatna,
+		    "visibility" : floatna,
+		},
+		"weather_copa_hourly" : {
+		    "Posttime" : datetime,
+		    "Temperature" : floatna,
+		},
+		"weather_degree_hours" : {
+		    "readtime" : datetime,
+		    "temp" : floatna,
+		    "hdh" : floatna,
+		    "cdh" : floatna,
+		},
+		"weather_degree_month" : {
+		    "billing_month" : intna,
+		    "days" : intna,
+		    "hdh" : floatna,
+		    "cdh" : floatna,
+		},
+		"weather_sites" : {
+		    "zipcode" : intna,
+		    "city_st" : strna,
+		    "noaacode" : strna,
+		},
+		"weathernoaa" : {
+		    "noaacode" : strna,
+		    "readtime" : datetime,
+		    "posttime" : datetime,
+		    "temperature" : floatna,
+		    "humidity" : floatna,
+		    "dewpoint" : floatna,
+		    "windvel" : floatna,
+		    "winddir" : floatna,
+		    "barometer" : floatna,
+		    "visibility" : floatna,
 		},
 	}
 	INDEXCOLS = {
@@ -206,32 +376,32 @@ class Olypen:
 		"cust_wh_config" : ["cust_wh_config_id"],
 		"cust_wh_trans" : ["cust_wh_trans_id"],
 		"customer" : ["customer_id"],
-		"dashboard_data" : None,
-		"dev_type_comfort_level" : None,
-		"device_type" : None,
-		"experiment" : None,
-		"experiment_participant" : None,
-		"fixed_price" : None,
-		"home_mode_type" : None,
-		"invensys_meter" : None,
-		"invensys_weather" : None,
-		"midc" : None,
-		"noaa_weather_station" : None,
-		"prices" : None,
-		"sell" : None,
-		"supplier" : None,
-		"supplier_feeder_limit" : None,
-		"supplier_feeder_status" : None,
-		"supplier_type" : None,
-		"tou_prices" : None,
-		"unit_type" : None,
-		"weather" : None,
-		"weather_copa_hourly" : None,
-		"weather_degree_hours" : None,
-		"weather_degree_month" : None,
-		"weather_sites" : None,
-		"weathernoaa" : None,	
-		}
+		"dashboard_data" : ["readtime"],
+		"dev_type_comfort_level" : ['dev_type_comfort_level_id'],
+		"device_type" : ["device_type_id"],
+		"experiment" : ["experiment_code"],
+		"experiment_participant" : ["experiment_participant_id"],
+		"fixed_price" : ["fixed_price_id"],
+		"home_mode_type" : ["home_mode_type_id"],
+		"invensys_meter" : ["customer_id"],
+		"invensys_weather" : ["invensys_acct_id"],
+		"midc" : ["report_time"],
+		"noaa_weather_station" : ["noaacode"],
+		"prices" : ["mkt_id"],
+		"sell" : ["mkt_id","price"],
+		"supplier" : ["supplier_id"],
+		"supplier_feeder_limit" : ["supplier_id"],
+		"supplier_feeder_status" : ["supplier_id"],
+		"supplier_type" : ["supplier_type_code"],
+		"tou_prices" : ["startdate","hour"],
+		"unit_type" : ["unit_type_code"],
+		"weather" : ["zipcode","readtime"],
+		"weather_copa_hourly" : ["Posttime"],
+		"weather_degree_hours" : ["readtime"],
+		"weather_degree_month" : ["billing_month"],
+		"weather_sites" : ["zipcode"],
+		"weathernoaa" : ["noaacode","readtime"],		
+	}
 	
 	def __init__(self,datadir=None):
 		"""Olypen class constructor
@@ -245,6 +415,13 @@ class Olypen:
 		self.directory = self._directory()
 
 	def __getitem__(self,name):
+		"""Get a data table"""
+		if not name in self.tables:
+			return self.table(name)
+		else:
+			return self.tables[name]
+
+	def __getattr__(self,name):
 		"""Get a data table"""
 		if not name in self.tables:
 			return self.table(name)
