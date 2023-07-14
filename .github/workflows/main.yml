@@ -16,6 +16,6 @@ jobs:
 
     - name: Check olypen module
       run: |
-        cd analysis
+        cd source
         gridlabd python -m olypen
       
