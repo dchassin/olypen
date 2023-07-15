@@ -2,8 +2,16 @@
 
 Olympic Peninsula Demonstration Project data accessor
 
-Example
--------
+# Installation
+
+Do the following to install this module:
+
+~~~
+git clone https://github.com/dchassin/olypen
+python3 -m pip install olypen
+~~~
+
+# Example
 
 ~~~
 >>> import olypen
