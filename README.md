@@ -56,4 +56,4 @@ Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC 
 
 ## References
 
-* [David P. Chassin, "Olympic Peninsula Demonstration Testbed Results", PNNL-SA-70980, Pacific Northwest National Laboratory, Richland, Washington (2010). URL: https://svn.pnl.gov/olypen.
+* Chassin, David P., "Olympic Peninsula Demonstration Testbed Results", PNNL-SA-70980, Pacific Northwest National Laboratory, Richland, Washington (2010). URL: https://svn.pnl.gov/olypen.
