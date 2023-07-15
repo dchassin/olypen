@@ -1,5 +1,5 @@
 __pycache__/
-data/
+.olypen_data/
 .DS_Store
 *.egg-info
 build/
