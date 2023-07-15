@@ -1,4 +1,4 @@
-[![Validation](../../actions/workflows/main.yml/badge.svg)](../../actions/workflows/main.yml)
+[![Validation](../../actions/workflows/validate.yml/badge.svg)](../../actions/workflows/validate.yml)
 
 # Olympic Peninsula Gridwise Demonstration Project data accessor
 
