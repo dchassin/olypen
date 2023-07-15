@@ -4,6 +4,8 @@
 
 This repository contains the source to a Python module that can be used to access the Olympic Peninsula Gridwise Demonstration Project data.
 
+See [references](references) for project details, including [implementation source code](references/source), the [data dictionary](references/data_dictionary.csv), and [participant survey results](references/surveys). 
+
 ## Installation
 
 Do the following to install this module:
