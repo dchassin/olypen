@@ -1,8 +1,10 @@
 [![Validation](../../actions/workflows/main.yml/badge.svg)](../../actions/workflows/main.yml)
 
-Olympic Peninsula Demonstration Project data accessor
+# Olympic Peninsula Gridwise Demonstration Project data accessor
 
-# Installation
+This repository contains the source to a Python module that can be used to access the Olympic Peninsula Gridwise Demonstration Project data.
+
+## Installation
 
 Do the following to install this module:
 
@@ -11,7 +13,7 @@ git clone https://github.com/dchassin/olypen
 python3 -m pip install olypen
 ~~~
 
-# Example
+## Example
 
 ~~~
 >>> import olypen
@@ -47,3 +49,11 @@ mkt_id
 ~~~
 
 [103843 rows x 7 columns]
+
+## Citation
+
+Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC National Accelerator Laboratory, Menlo Park, California, 2023. URL: https://github.com/dchassin/olypen.
+
+## References
+
+* [David P. Chassin, "Olympic Peninsula Demonstration Testbed Results", PNNL-SA-70980, Pacific Northwest National Laboratory, Richland, Washington (2010). URL: https://svn.pnl.gov/olypen.
