@@ -16,6 +16,7 @@ jobs:
 
     - name: Test olypen module
       run: |
-        cd source
-        gridlabd python -m olypen
+        python3 -m pip install .
+        cd olypen
+        python3 __init__.py
       
