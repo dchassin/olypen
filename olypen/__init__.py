@@ -57,13 +57,13 @@ NAN = float('NaN')
 
 def _datetime_na(str):
 	try:
-		return datetime.datetime.strptime(_str_na,DATETIMEFORMAT)
+		return datetime.datetime.strptime(str,DATETIMEFORMAT)
 	except:
 		return NAN
 
 def _date_na(str):
 	try:
-		return datetime.datetime.strptime(_str_na,DATEFORMAT).date()
+		return datetime.datetime.strptime(str,DATEFORMAT).date()
 	except:
 		return NAN
 
@@ -92,7 +92,31 @@ class Olypen:
 
 	VERBOSE = False
 	CONVERTERS = {
-		# only needed it any fields are not _int_na, _float_na, or str
+		"billing" : {
+				"customer_id" : _int_na,
+				"period" : _int_na,
+				"contract_type_code" : _str_na,
+				"mkt_id" : _int_na,
+				"intervals" : _int_na,
+				"kwh" : _float_na,
+				"price" : _float_na,
+				"charge" : _float_na,
+		},
+		"billing_report" : {
+				"customer_id" : _int_na,
+				"month" : _int_na,
+				"year" : _int_na,
+				"contract_type_code" : _str_na,
+				"coverage" : _float_na,
+				"kwh_usage" : _float_na,
+				"charges" : _float_na,
+				"kwh_expected" : _float_na,
+				"deposit" : _float_na,
+				"unadjusted" : _float_na,
+				"coverage_adjusted" : _float_na,
+				"kwh_adjusted" : _float_na,
+				"adjusted" : _float_na,
+		},
 		"billing_trans" : {
 			"billing_trans_id" : _int_na,
 			"customer_id" : _int_na,
@@ -102,12 +126,48 @@ class Olypen:
 			"billing_trans_date" : _date_na,
 			"trans_amount" : _float_na,
 		},
+		"buy" : {
+				"customer_id" : _int_na,
+				"posttime" : _datetime_na,
+				"mkt_id" : _int_na,
+				"quantity" : _float_na,
+				"price" : _float_na,
+		},
+		"clear" : {
+				"mkt_id" : _int_na,
+				"posttime" : _datetime_na,
+				"quantity" : _float_na,
+				"price" : _float_na,
+				"avg24" : _float_na,
+				"std24" : _float_na,
+				"avg168" : _float_na,
+				"std168" : _float_na,
+		},
+		"contract_type" : {
+				"contract_type_code" : _str_na,
+				"contract_type_desc" : _str_na,
+		},
+		"critical_prices" : {
+				"critical_prices_id" : _int_na,
+				"cpp_date" : _date_na,
+				"cpp_hour" : _int_na,
+				"price" : _float_na,
+				"unit_type_code" : _str_na,
+		},
 		"cust_billed_meter_usage" : {
 			"customer_id" : _int_na,
 			"start_time" : _datetime_na,
 			"end_time" : _datetime_na,
 			"meter_usage" : _float_na,
 			"unit_type_code" : _str_na,
+		},
+		"cust_billing_history" : {
+				"customer_id" : _int_na,
+				"billing_month" : _int_na,
+				"billing_days" : _int_na,
+				"kwh_usage" : _float_na,
+				"updated" : _datetime_na,
+				"billed_amount" : _float_na,
 		},
 		"cust_contract_history" : {
 			"cust_contract_history_id" : _int_na,
@@ -178,6 +238,52 @@ class Olypen:
 			"temp_current" : _float_na,
 			"demand" : _float_na,
 			"meter_reading" : _float_na,	
+		},
+		"cust_usage_projection" : {
+				"customer_id" : _int_na,
+				"billing_month" : _int_na,
+				"kwh_expected" : _float_na,
+				"lastupdate" : _datetime_na,
+				"deposit" : _float_na,
+		},
+		"cust_wh_config" : {
+				"cust_wh_config_id" : _int_na,
+				"cust_device_id" : _int_na,
+				"kfactor" : _float_na,
+		},
+		"cust_wh_trans" : {
+				"cust_wh_trans_id" : _int_na,
+				"cust_wh_config_id" : _int_na,
+				"meter_unit_type_code" : _str_na,
+				"demand_unit_type_code" : _str_na,
+				"read_time" : _datetime_na,
+				"demand" : _float_na,
+				"meter_reading" : _float_na,
+				"is_overridden" : _bool_na,
+				"is_on" : _bool_na,
+		},
+		"customer" : {
+				"customer_id" : _int_na,
+				"cust_name" : _str_na,
+				"utility_name" : _str_na,
+				"utility_code" : _str_na,
+				"pnnl_acct_id" : _str_na,
+				"invensys_acct_id" : _int_na,
+				"gateway_ip_address" : _str_na,
+				"contract_start_date" : _datetime_na,
+				"contract_type_code" : _str_na,
+				"contract_type_first_preference" : _str_na,
+				"contract_type_second_preference" : _str_na,
+				"contract_preference_utility" : _str_na,
+				"contract_preference_updatetime" : _datetime_na,
+				"city" : _str_na,
+				"state" : _str_na,
+				"zipcode" : _int_na,
+				"usage_model_kwh_base" : _float_na,
+				"usage_model_kwh_per_hdh" : _float_na,
+				"usage_model_kwh_stdev" : _float_na,
+				"usage_model_samples" : _int_na,
+				"usage_model_updated" : _datetime_na,
 		},
 		"dashboard_data" : {
 			"readtime" : _datetime_na,
@@ -450,7 +556,7 @@ class Olypen:
 		"""Load a data table
 		Parameters:
 			name (str) - Name of table 
-			kwargs - pandas.read_csv() options
+			kwargs - pandas.read_csv() options (see pandas documentation)
 		Returns:
 			dataframe - Data
 		"""
@@ -471,8 +577,8 @@ class Olypen:
 
 		default_kwds = {
 			"low_memory" : False,
-			"converters" : self.CONVERTERS[name] if name in self.CONVERTERS else None,
-			"index_col" : self.INDEXCOLS[name] if name in self.INDEXCOLS else None,
+			"converters" : self.CONVERTERS[name],
+			"index_col" : self.INDEXCOLS[name],
 			"na_values" : ['\\N'],
 		}
 		for item,value in default_kwds.items():
@@ -484,13 +590,417 @@ class Olypen:
 		return data
 
 if __name__ == "__main__":
+	import unittest
 	repo = Olypen()
-	for name in repo.directory:
-		print(name,end='... ',file=sys.stderr,flush=True)
-		tic = datetime.datetime.now()
-		data = repo[name]
-		toc = datetime.datetime.now()
-		t = (toc-tic).total_seconds()
-		n = len(data)
-		print(f"{n} records loaded in {t:.1f} seconds ({(n/t):.0f} records/second)",file=sys.stderr,flush=True)
-		del repo[name]
+	MAXROWS = 10000
+	class TestOlypen(unittest.TestCase):
+
+		def test_directory(self):
+			self.assertGreater(len(repo.directory),0)
+
+		def test_billing(self):
+			data = repo.table("billing",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.billing),0)
+			self.assertGreater(len(repo["billing"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["billing"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_billing_report(self):
+			data = repo.table("billing_report",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.billing_report),0)
+			self.assertGreater(len(repo["billing_report"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["billing_report"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_billing_trans(self):
+			data = repo.table("billing_trans",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.billing_trans),0)
+			self.assertGreater(len(repo["billing_trans"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["billing_trans"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_buy(self):
+			data = repo.table("buy",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.buy),0)
+			self.assertGreater(len(repo["buy"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["buy"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_clear(self):
+			data = repo.table("clear",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.clear),0)
+			self.assertGreater(len(repo["clear"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["clear"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_contract_type(self):
+			data = repo.table("contract_type",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.contract_type),0)
+			self.assertGreater(len(repo["contract_type"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["contract_type"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_critical_prices(self):
+			data = repo.table("critical_prices",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.critical_prices),0)
+			self.assertGreater(len(repo["critical_prices"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["critical_prices"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_billed_meter_usage(self):
+			data = repo.table("cust_billed_meter_usage",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_billed_meter_usage),0)
+			self.assertGreater(len(repo["cust_billed_meter_usage"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_billed_meter_usage"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_billing_history(self):
+			data = repo.table("cust_billing_history",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_billing_history),0)
+			self.assertGreater(len(repo["cust_billing_history"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_billing_history"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_contract_history(self):
+			data = repo.table("cust_contract_history",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_contract_history),0)
+			self.assertGreater(len(repo["cust_contract_history"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_contract_history"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_device(self):
+			data = repo.table("cust_device",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_device),0)
+			self.assertGreater(len(repo["cust_device"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_device"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_dryer_config(self):
+			data = repo.table("cust_dryer_config",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_dryer_config),0)
+			self.assertGreater(len(repo["cust_dryer_config"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_dryer_config"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_dryer_trans(self):
+			data = repo.table("cust_dryer_trans",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_dryer_trans),0)
+			self.assertGreater(len(repo["cust_dryer_trans"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_dryer_trans"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_meter_trans(self):
+			data = repo.table("cust_meter_trans",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_meter_trans),0)
+			self.assertGreater(len(repo["cust_meter_trans"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_meter_trans"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_tstat_config(self):
+			data = repo.table("cust_tstat_config",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_tstat_config),0)
+			self.assertGreater(len(repo["cust_tstat_config"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_tstat_config"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_tstat_trans(self):
+			data = repo.table("cust_tstat_trans",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_tstat_trans),0)
+			self.assertGreater(len(repo["cust_tstat_trans"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_tstat_trans"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_usage_projection(self):
+			data = repo.table("cust_usage_projection",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_usage_projection),0)
+			self.assertGreater(len(repo["cust_usage_projection"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_usage_projection"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_wh_config(self):
+			data = repo.table("cust_wh_config",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_wh_config),0)
+			self.assertGreater(len(repo["cust_wh_config"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_wh_config"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_cust_wh_trans(self):
+			data = repo.table("cust_wh_trans",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.cust_wh_trans),0)
+			self.assertGreater(len(repo["cust_wh_trans"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["cust_wh_trans"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_customer(self):
+			data = repo.table("customer",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.customer),0)
+			self.assertGreater(len(repo["customer"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["customer"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_dashboard_data(self):
+			data = repo.table("dashboard_data",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.dashboard_data),0)
+			self.assertGreater(len(repo["dashboard_data"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["dashboard_data"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_dev_type_comfort_level(self):
+			data = repo.table("dev_type_comfort_level",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.dev_type_comfort_level),0)
+			self.assertGreater(len(repo["dev_type_comfort_level"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["dev_type_comfort_level"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_device_type(self):
+			data = repo.table("device_type",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.device_type),0)
+			self.assertGreater(len(repo["device_type"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["device_type"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_experiment(self):
+			data = repo.table("experiment",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.experiment),0)
+			self.assertGreater(len(repo["experiment"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["experiment"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_experiment_participant(self):
+			data = repo.table("experiment_participant",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.experiment_participant),0)
+			self.assertGreater(len(repo["experiment_participant"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["experiment_participant"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_fixed_price(self):
+			data = repo.table("fixed_price",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.fixed_price),0)
+			self.assertGreater(len(repo["fixed_price"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["fixed_price"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_home_mode_type(self):
+			data = repo.table("home_mode_type",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.home_mode_type),0)
+			self.assertGreater(len(repo["home_mode_type"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["home_mode_type"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_invensys_meter(self):
+			data = repo.table("invensys_meter",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.invensys_meter),0)
+			self.assertGreater(len(repo["invensys_meter"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["invensys_meter"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_invensys_weather(self):
+			data = repo.table("invensys_weather",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.invensys_weather),0)
+			self.assertGreater(len(repo["invensys_weather"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["invensys_weather"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_midc(self):
+			data = repo.table("midc",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.midc),0)
+			self.assertGreater(len(repo["midc"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["midc"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_noaa_weather_station(self):
+			data = repo.table("noaa_weather_station",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.noaa_weather_station),0)
+			self.assertGreater(len(repo["noaa_weather_station"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["noaa_weather_station"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_prices(self):
+			data = repo.table("prices",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.prices),0)
+			self.assertGreater(len(repo["prices"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["prices"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_sell(self):
+			data = repo.table("sell",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.sell),0)
+			self.assertGreater(len(repo["sell"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["sell"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_supplier(self):
+			data = repo.table("supplier",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.supplier),0)
+			self.assertGreater(len(repo["supplier"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["supplier"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_supplier_feeder_limit(self):
+			data = repo.table("supplier_feeder_limit",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.supplier_feeder_limit),0)
+			self.assertGreater(len(repo["supplier_feeder_limit"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["supplier_feeder_limit"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_supplier_feeder_status(self):
+			data = repo.table("supplier_feeder_status",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.supplier_feeder_status),0)
+			self.assertGreater(len(repo["supplier_feeder_status"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["supplier_feeder_status"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_supplier_type(self):
+			data = repo.table("supplier_type",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.supplier_type),0)
+			self.assertGreater(len(repo["supplier_type"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["supplier_type"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_tou_prices(self):
+			data = repo.table("tou_prices",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.tou_prices),0)
+			self.assertGreater(len(repo["tou_prices"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["tou_prices"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_unit_type(self):
+			data = repo.table("unit_type",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.unit_type),0)
+			self.assertGreater(len(repo["unit_type"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["unit_type"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_weather(self):
+			data = repo.table("weather",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.weather),0)
+			self.assertGreater(len(repo["weather"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["weather"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_weather_copa_hourly(self):
+			data = repo.table("weather_copa_hourly",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.weather_copa_hourly),0)
+			self.assertGreater(len(repo["weather_copa_hourly"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["weather_copa_hourly"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_weather_degree_hours(self):
+			data = repo.table("weather_degree_hours",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.weather_degree_hours),0)
+			self.assertGreater(len(repo["weather_degree_hours"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["weather_degree_hours"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_weather_degree_month(self):
+			data = repo.table("weather_degree_month",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.weather_degree_month),0)
+			self.assertGreater(len(repo["weather_degree_month"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["weather_degree_month"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_weather_sites(self):
+			data = repo.table("weather_sites",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.weather_sites),0)
+			self.assertGreater(len(repo["weather_sites"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["weather_sites"]:
+				self.assertGreater(len(data[field]),0)
+
+		def test_weathernoaa(self):
+			data = repo.table("weathernoaa",nrows=MAXROWS)
+			self.assertGreater(len(data),0)
+			self.assertGreater(len(repo.weathernoaa),0)
+			self.assertGreater(len(repo["weathernoaa"]),0)
+			data.reset_index(inplace=True)
+			for field in repo.CONVERTERS["weathernoaa"]:
+				self.assertGreater(len(data[field]),0)
+
+	unittest.main()
