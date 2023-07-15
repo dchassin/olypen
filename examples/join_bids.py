@@ -15,4 +15,4 @@ sell.quantity_bid = -sell.quantity_bid
 sell.sort_index(inplace=True)
 
 print("Saving bids...",flush=True)
-olypen.pandas.concat([buy,sell]).reset_index().set_index(['mkt_id','price_bid']).sort_index().to_csv("join_bids.csv",header=True,index=True,compression='gzip')
+olypen.pandas.concat([buy,sell]).reset_index().set_index(['mkt_id','price_bid']).sort_index().to_csv("join_bids.csv.gz",header=True,index=True,compression='gzip')
