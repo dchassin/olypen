@@ -14,8 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Check olypen module
+    - name: Test olypen module
       run: |
-        cd source
-        gridlabd python -m olypen
+        gridlabd python -m pip install .
+        cd ./olypen
+        gridlabd python __init__.py
       

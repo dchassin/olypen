@@ -1,3 +1,2 @@
-pandas
-pygithub
-requests
+pandas>=1.5.1
+requests>=2.30.0

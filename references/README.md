@@ -1,0 +1,1 @@
+This folder contains backup copies of the original documentation from the Olympic Peninsula project, including a backup of the source code to the system and the resuls of the participant surveys conducted before and after the project.
