@@ -52,7 +52,7 @@ mkt_id
 
 ## Citation
 
-Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC National Accelerator Laboratory, Menlo Park, California, 2023. URL: https://github.com/dchassin/olypen.
+Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC National Accelerator Laboratory, Menlo Park, California (2023). URL: https://github.com/dchassin/olypen.
 
 ## References
 
