@@ -1,4 +1,4 @@
-[[/Globals/DATADIR]] - Olypen global variable
+[[/Globals/DATADIR]] - Global variable
 
 
 Type is `str`. Default is `'.olypen_data'`.

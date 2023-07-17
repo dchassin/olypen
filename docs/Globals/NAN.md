@@ -1,4 +1,4 @@
-[[/Globals/NAN]] - Olypen global variable
+[[/Globals/NAN]] - Global variable
 
 
 Type is `float`. Default is `nan`.
