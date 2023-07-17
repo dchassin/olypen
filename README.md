@@ -17,10 +17,15 @@ python3 -m pip install olypen
 
 ## Example
 
+Python code to get a directory of tables:
 ~~~
->>> import olypen
->>> d = olypen.Olypen()
->>> d.directory
+import olypen
+d = olypen.Olypen()
+d.directory
+~~~
+
+Output:
+~~~
 ['billing', 'billing_report', 'billing_trans', 'buy', 'clear',
  'contract_type', 'critical_prices', 'cust_billed_meter_usage',
  'cust_billing_history', 'cust_contract_history', 'cust_device',
@@ -48,11 +53,12 @@ mkt_id
 3918034  2007-03-31 23:50:00   108.532   4.19  10.43   8.77   19.58   25.11
 3918035  2007-03-31 23:55:00    97.156   4.19  10.38   8.76   19.58   25.11
 3918036  2007-04-01 00:00:00    87.457   4.19  10.33   8.75   19.58   25.11
-~~~
 
 [103843 rows x 7 columns]
+~~~
 
-Additional examples are available in [`examples` folder](examples).
+Additional examples are available in the [`examples` folder](examples).
+
 ## Citation
 
 Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC National Accelerator Laboratory, Menlo Park, California (2023). URL: https://github.com/dchassin/olypen.
