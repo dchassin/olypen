@@ -1,2 +1,2 @@
-[/OlypenException] - Olympic data exception class
+[[/OlypenException]] - Olympic data exception class
 	

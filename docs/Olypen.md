@@ -1,2 +1,2 @@
-[/Olypen] - Olympic data accessor class
+[[/Olypen]] - Olympic data accessor class
 	

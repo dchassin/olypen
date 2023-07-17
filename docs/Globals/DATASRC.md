@@ -1,4 +1,4 @@
-[/Globals/DATASRC] - Olypen global variable
+[[/Globals/DATASRC]] - Olypen global variable
 
 
 Default is `'https://olypen.s3.us-west-2.amazonaws.com/data'`.

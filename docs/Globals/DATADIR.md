@@ -1,0 +1,4 @@
+[[/Globals/DATADIR]] - Olypen global variable
+
+
+Default is `'.olypen_data'`.
