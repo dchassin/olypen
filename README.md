@@ -22,6 +22,7 @@ Python code to get a directory of tables:
 import olypen
 d = olypen.Olypen()
 d.directory
+d['clear']
 ~~~
 
 Output:
@@ -39,7 +40,7 @@ Output:
  'supplier_feeder_status', 'supplier_type', 'tou_prices', 'unit_type',
  'weather', 'weather_copa_hourly', 'weather_degree_hours',
  'weather_degree_month', 'weather_sites', 'weathernoaa']
->>> d['clear']
+
                     posttime  quantity  price  avg24  std24  avg168  std168
 mkt_id                                                                     
 3812928  2006-04-01 00:00:00   140.183  33.77  43.07  21.02   43.73   14.50
