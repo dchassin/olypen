@@ -3,6 +3,7 @@ Olympic Peninsula Demonstration Project data accessor
 Example
 -------
 
+~~~
 >>> import olypen
 >>> d = olypen.Olypen()
 >>> d.directory
@@ -35,4 +36,5 @@ mkt_id
 3918036  2007-04-01 00:00:00    87.457   4.19  10.33   8.75   19.58   25.11
 
 [103843 rows x 7 columns]
+~~~
 

@@ -3,6 +3,9 @@
 Example
 -------
 
+The following example output a list of the available tables and prints the
+contents of the `clear` table.
+
 ~~~
 >>> import olypen
 >>> d = olypen.Olypen()
