@@ -1,4 +1,4 @@
 [[/Globals/DATEFORMAT]] - Olypen global variable
 
 
-Default is `'%Y-%m-%d'`.
+Type is `str`. Default is `'%Y-%m-%d'`.

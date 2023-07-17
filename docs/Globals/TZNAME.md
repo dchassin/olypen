@@ -1,4 +1,4 @@
 [[/Globals/TZNAME]] - Olypen global variable
 
 
-Default is `'America/Los Angeles'`.
+Type is `str`. Default is `'America/Los Angeles'`.

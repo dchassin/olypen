@@ -1,4 +1,4 @@
 [[/Globals/TZSPEC]] - Olypen global variable
 
 
-Default is `America/Los Angeles`.
+Type is `timezone`. Default is `America/Los Angeles`.

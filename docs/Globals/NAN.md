@@ -1,4 +1,4 @@
 [[/Globals/NAN]] - Olypen global variable
 
 
-Default is `nan`.
+Type is `float`. Default is `nan`.

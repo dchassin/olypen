@@ -1,4 +1,4 @@
 [[/Globals/TZOFFSET]] - Olypen global variable
 
 
-Default is `-8`.
+Type is `int`. Default is `-8`.
