@@ -8,9 +8,6 @@ import datetime as dt
 from moviepy.editor import VideoClip
 from moviepy.video.io.bindings import mplfig_to_npimage
 
-pd.options.display.width = None
-pd.options.display.max_columns = None
-
 db = olypen.Olypen()
 
 # get the bids
