@@ -62,38 +62,38 @@ TZOFFSET = -8
 TZSPEC = datetime.timezone(datetime.timedelta(hours=TZOFFSET),TZNAME)
 NAN = float('NaN')
 
-def _datetime_na(str):
+def _datetime_na(s):
 	try:
-		return datetime.datetime.strptime(str,DATETIMEFORMAT)
+		return datetime.datetime.strptime(s,DATETIMEFORMAT)
 	except:
 		return NAN
 
-def _date_na(str):
+def _date_na(s):
 	try:
-		return datetime.datetime.strptime(str,DATEFORMAT).date()
+		return datetime.datetime.strptime(s,DATEFORMAT).date()
 	except:
 		return NAN
 
-def _bool_na(str):
+def _bool_na(s):
 	try:
-		return bool(int(str))
+		return bool(int(s))
 	except:
 		return NAN
 
-def _float_na(str):
+def _float_na(s):
 	try:
-		return float(str)
+		return float(s)
 	except:
 		return NAN
 
-def _int_na(str):
+def _int_na(s):
 	try:
-		return int(str)
+		return int(s)
 	except:
 		return NAN
 
-def _str_na(str):
-	return str if str != "\\N" else float('NaN')
+def _str_na(s):
+	return s if s != "\\N" else float('NaN')
 
 class Olypen:
 	"""Olympic data accessor class
