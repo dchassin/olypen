@@ -22,11 +22,15 @@ for item,value in classes.items():
 		print(f"[[/{item}]] - {value.__doc__}",file=fh,end="\n\n")
 		functions = dict([(x,getattr(value,x)) for x in dir(value) 
 			if not x.startswith('_') and callable(getattr(value,x))])
-		print(item,functions)
 		if functions:
 			print("Functions\n---------\n",file=fh)
-			for function,call in functions.items():
-				print(function,"\n",'-'*len(function),file=fh,end="\n\n")
+			for name,call in functions.items():
+				if  "__code__" in dir(call):
+					arglist = call.__code__.co_varnames[0:call.__code__.co_argcount]
+					print(name,"\n",'-'*len(name),f"({','.join(arglist)})",file=fh,end="\n\n")
+					print("\nParameters:",file=fh)
+					for arg in arglist:
+						print(f"    {arg} - ",file=fh)
 
 functions = dict([(x,getattr(olypen,x)) for x in dir(olypen) 
 	if not x.startswith('_') and callable(getattr(olypen,x))])
