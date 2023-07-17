@@ -46,6 +46,8 @@ DATASRC = "https://olypen.s3.us-west-2.amazonaws.com/data"
 DATADIR = ".olypen_data"
 
 class OlypenException(Exception):
+	"""Olympic data exception class
+	"""
 	pass
 
 DATETIMEFORMAT = "%Y-%m-%d %H:%M:%S"
@@ -89,7 +91,8 @@ def _str_na(str):
 	return str if str != "\\N" else float('NaN')
 
 class Olypen:
-
+	"""Olympic data accessor class
+	"""
 	VERBOSE = False
 	CONVERTERS = {
 		"billing" : {

@@ -1,30 +1,11 @@
-# Welcome
+Olympic Peninsula Demonstration Project data accessor
 
-This repository contains the source to a Python module that can be used to access the Olympic Peninsula Gridwise Demonstration Project data.
+Example
+-------
 
-See [references](references) for project details, including [implementation source code](references/source), the [data dictionary](references/data_dictionary.csv), and [participant survey results](references/surveys). 
-
-## Installation
-
-Do the following to install this module:
-
-~~~
-git clone https://github.com/dchassin/olypen
-python3 -m pip install olypen
-~~~
-
-## Example
-
-Python code to get a directory of tables:
-~~~
-import olypen
-d = olypen.Olypen()
-d.directory
-d['clear']
-~~~
-
-Output:
-~~~
+>>> import olypen
+>>> d = olypen.Olypen()
+>>> d.directory
 ['billing', 'billing_report', 'billing_trans', 'buy', 'clear',
  'contract_type', 'critical_prices', 'cust_billed_meter_usage',
  'cust_billing_history', 'cust_contract_history', 'cust_device',
@@ -38,7 +19,7 @@ Output:
  'supplier_feeder_status', 'supplier_type', 'tou_prices', 'unit_type',
  'weather', 'weather_copa_hourly', 'weather_degree_hours',
  'weather_degree_month', 'weather_sites', 'weathernoaa']
-
+>>> d.clear
                     posttime  quantity  price  avg24  std24  avg168  std168
 mkt_id                                                                     
 3812928  2006-04-01 00:00:00   140.183  33.77  43.07  21.02   43.73   14.50
@@ -54,14 +35,4 @@ mkt_id
 3918036  2007-04-01 00:00:00    87.457   4.19  10.33   8.75   19.58   25.11
 
 [103843 rows x 7 columns]
-~~~
 
-Additional examples are available in the [`examples` folder](examples).
-
-## Citation
-
-Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC National Accelerator Laboratory, Menlo Park, California (2023). URL: https://github.com/dchassin/olypen.
-
-## References
-
-* Chassin, David P., "Olympic Peninsula Demonstration Testbed Results", PNNL-SA-70980, Pacific Northwest National Laboratory, Richland, Washington (2010). URL: https://svn.pnl.gov/olypen.
