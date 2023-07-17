@@ -52,6 +52,7 @@ mkt_id
 
 [103843 rows x 7 columns]
 
+Additional examples are available in [`examples` folder](examples).
 ## Citation
 
 Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC National Accelerator Laboratory, Menlo Park, California (2023). URL: https://github.com/dchassin/olypen.
