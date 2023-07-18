@@ -17,7 +17,7 @@ python3 -m pip install olypen
 
 ## Example
 
-Python code to get a directory of tables:
+Python code to get a directory of tables and print the market clearing table:
 ~~~
 import olypen
 d = olypen.Olypen()
