@@ -4,7 +4,7 @@
 
 This repository contains the source to a Python module that can be used to access the Olympic Peninsula Gridwise Demonstration Project data.
 
-See [references](references) for project details, including [implementation source code](references/source), the [data dictionary](references/data_dictionary.csv), and [participant survey results](references/surveys). 
+See [data dictionary](reference/data_dictionary.csv) for details, including [implementation source code](references/source), the [data dictionary](references/data_dictionary.csv), and [participant survey results](references/surveys). 
 
 ## Installation
 
@@ -17,7 +17,7 @@ python3 -m pip install olypen
 
 ## Example
 
-Python code to get a directory of tables:
+Python code to get a directory of tables and print the market clearing table:
 ~~~
 import olypen
 d = olypen.Olypen()

@@ -3,6 +3,10 @@
 Example
 -------
 
+The following example output a list of the available tables and prints the
+contents of the `clear` table.
+
+~~~
 >>> import olypen
 >>> d = olypen.Olypen()
 >>> d.directory
@@ -35,6 +39,7 @@ mkt_id
 3918036  2007-04-01 00:00:00    87.457   4.19  10.33   8.75   19.58   25.11
 
 [103843 rows x 7 columns]
+~~~
 """
 
 import sys, os
@@ -46,6 +51,8 @@ DATASRC = "https://olypen.s3.us-west-2.amazonaws.com/data"
 DATADIR = ".olypen_data"
 
 class OlypenException(Exception):
+	"""Olympic data exception class
+	"""
 	pass
 
 DATETIMEFORMAT = "%Y-%m-%d %H:%M:%S"
@@ -55,41 +62,42 @@ TZOFFSET = -8
 TZSPEC = datetime.timezone(datetime.timedelta(hours=TZOFFSET),TZNAME)
 NAN = float('NaN')
 
-def _datetime_na(str):
+def _datetime_na(s):
 	try:
-		return datetime.datetime.strptime(str,DATETIMEFORMAT)
+		return datetime.datetime.strptime(s,DATETIMEFORMAT)
 	except:
 		return NAN
 
-def _date_na(str):
+def _date_na(s):
 	try:
-		return datetime.datetime.strptime(str,DATEFORMAT).date()
+		return datetime.datetime.strptime(s,DATEFORMAT).date()
 	except:
 		return NAN
 
-def _bool_na(str):
+def _bool_na(s):
 	try:
-		return bool(int(str))
+		return bool(int(s))
 	except:
 		return NAN
 
-def _float_na(str):
+def _float_na(s):
 	try:
-		return float(str)
+		return float(s)
 	except:
 		return NAN
 
-def _int_na(str):
+def _int_na(s):
 	try:
-		return int(str)
+		return int(s)
 	except:
 		return NAN
 
-def _str_na(str):
-	return str if str != "\\N" else float('NaN')
+def _str_na(s):
+	return s if s != "\\N" else float('NaN')
 
 class Olypen:
-
+	"""Olympic data accessor class
+	"""
 	VERBOSE = False
 	CONVERTERS = {
 		"billing" : {
