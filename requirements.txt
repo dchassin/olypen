@@ -2,3 +2,4 @@ pandas==1.5.1
 requests==2.30.0
 matplotlib==3.7.1
 moviepy==1.0.3
+seaborn==0.12.2
