@@ -19,6 +19,7 @@ for tariff in ['FIXED','TOU','RTP']:#result.index.get_level_values(0).unique():
 	data = -result.loc[tariff] # negative "surprise" is savings
 	if adj == None: 
 		adj = -data.mean().tolist()[0]
+		print(f"Adjustment is {adj-12.50:.2f}")
 	data = data + adj
 	mean = data.mean().tolist()[0]
 	stdv = data.std().tolist()[0]
