@@ -36,15 +36,21 @@ def heatmap(map_data,**kwargs):
 heatmap(numpy.log(-buys.eta))
 pl.title('log Elasticity')
 pl.colorbar()
+pl.xlabel('Market day')
+pl.ylabel('Market of day (5 minutes)')
 pl.savefig('plot_heatmap_eta.png')
 
 heatmap(buys.quantity_clear)
 pl.colorbar()
+pl.xlabel('Market day')
+pl.ylabel('Market of day (5 minutes)')
 pl.title('Clearing quantity (kW)')
 pl.savefig('plot_heatmap_quantity_clear.png')
 
 heatmap(buys.price_clear)
 pl.colorbar()
+pl.xlabel('Market day')
+pl.ylabel('Market of day (5 minutes)')
 pl.title('Clearing price ($/MW)')
 pl.savefig('plot_heatmap_price_clear.png')
 
