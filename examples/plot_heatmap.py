@@ -2,6 +2,8 @@
 import sys, pandas, numpy, matplotlib.pyplot as pl
 from datetime import datetime
 
+tzoffset = -8
+
 pandas.options.display.width = None
 pandas.options.display.max_columns = None
 
@@ -23,19 +25,20 @@ def heatmap(map_data,**kwargs):
 	data = pandas.DataFrame(map_data)
 	# diff = map_data.max() - map_data.min()
 	# data[map_data.name] = (map_data - map_data.min())/diff*256
-	data['interval'] = data.index.get_level_values(0)%288
-	start = (data.index.get_level_values(0)//288).min()
-	data['period'] = data.index.get_level_values(0)//288-start
+	index = data.index.get_level_values(0)+tzoffset*12
+	data['interval'] = index%288
+	start = (index//288).min()
+	data['period'] = index//288-start
 	data.set_index(['interval','period'],inplace=True)
 	N,M = [x+1 for x in data.index.max()]
-	array = numpy.full((N+1,M+1),float('nan'))
+	array = numpy.full((N,M+1),float('nan'))
 	for index,value in data.to_dict()[map_data.name].items():
 		array[index] = value
 	fig = pl.imshow(array)
 	return fig
-heatmap(numpy.log(-buys.eta))
-pl.title('log Elasticity')
-pl.colorbar()
+
+heatmap(numpy.log(-buys.eta)>0)
+pl.title('Elastic demand (yellow) vs inelastic demand (blue)')
 pl.xlabel('Market day')
 pl.ylabel('Market of day (5 minutes)')
 pl.savefig('plot_heatmap_eta.png')
