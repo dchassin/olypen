@@ -37,7 +37,7 @@ def heatmap(map_data,**kwargs):
 	fig = pl.imshow(array)
 	return fig
 
-heatmap(numpy.log(-buys.eta)>0)
+heatmap(buys.eta<-1.0)
 pl.title('Elastic demand (yellow) vs inelastic demand (blue)')
 pl.xlabel('Market day')
 pl.ylabel('Market of day (5 minutes)')
