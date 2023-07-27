@@ -99,6 +99,7 @@ class Olypen:
 	"""Olympic data accessor class
 	"""
 	VERBOSE = False
+	MAXROWS = None
 	CONVERTERS = {
 		"billing" : {
 				"customer_id" : _int_na,
@@ -588,6 +589,7 @@ class Olypen:
 			"converters" : self.CONVERTERS[name],
 			"index_col" : self.INDEXCOLS[name],
 			"na_values" : ['\\N'],
+			"nrows" : self.MAXROWS,
 		}
 		for item,value in default_kwds.items():
 			if not item in kwargs:
@@ -600,14 +602,14 @@ class Olypen:
 if __name__ == "__main__":
 	import unittest
 	repo = Olypen()
-	MAXROWS = 10000
+	repo.MAXROWS = 10000
 	class TestOlypen(unittest.TestCase):
 
 		def test_directory(self):
 			self.assertGreater(len(repo.directory),0)
 
 		def test_billing(self):
-			data = repo.table("billing",nrows=MAXROWS)
+			data = repo.table("billing")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.billing),0)
 			self.assertGreater(len(repo["billing"]),0)
@@ -616,7 +618,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_billing_report(self):
-			data = repo.table("billing_report",nrows=MAXROWS)
+			data = repo.table("billing_report")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.billing_report),0)
 			self.assertGreater(len(repo["billing_report"]),0)
@@ -625,7 +627,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_billing_trans(self):
-			data = repo.table("billing_trans",nrows=MAXROWS)
+			data = repo.table("billing_trans")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.billing_trans),0)
 			self.assertGreater(len(repo["billing_trans"]),0)
@@ -634,7 +636,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_buy(self):
-			data = repo.table("buy",nrows=MAXROWS)
+			data = repo.table("buy")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.buy),0)
 			self.assertGreater(len(repo["buy"]),0)
@@ -643,7 +645,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_clear(self):
-			data = repo.table("clear",nrows=MAXROWS)
+			data = repo.table("clear")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.clear),0)
 			self.assertGreater(len(repo["clear"]),0)
@@ -652,7 +654,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_contract_type(self):
-			data = repo.table("contract_type",nrows=MAXROWS)
+			data = repo.table("contract_type")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.contract_type),0)
 			self.assertGreater(len(repo["contract_type"]),0)
@@ -661,7 +663,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_critical_prices(self):
-			data = repo.table("critical_prices",nrows=MAXROWS)
+			data = repo.table("critical_prices")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.critical_prices),0)
 			self.assertGreater(len(repo["critical_prices"]),0)
@@ -670,7 +672,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_billed_meter_usage(self):
-			data = repo.table("cust_billed_meter_usage",nrows=MAXROWS)
+			data = repo.table("cust_billed_meter_usage")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_billed_meter_usage),0)
 			self.assertGreater(len(repo["cust_billed_meter_usage"]),0)
@@ -679,7 +681,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_billing_history(self):
-			data = repo.table("cust_billing_history",nrows=MAXROWS)
+			data = repo.table("cust_billing_history")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_billing_history),0)
 			self.assertGreater(len(repo["cust_billing_history"]),0)
@@ -688,7 +690,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_contract_history(self):
-			data = repo.table("cust_contract_history",nrows=MAXROWS)
+			data = repo.table("cust_contract_history")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_contract_history),0)
 			self.assertGreater(len(repo["cust_contract_history"]),0)
@@ -697,7 +699,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_device(self):
-			data = repo.table("cust_device",nrows=MAXROWS)
+			data = repo.table("cust_device")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_device),0)
 			self.assertGreater(len(repo["cust_device"]),0)
@@ -706,7 +708,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_dryer_config(self):
-			data = repo.table("cust_dryer_config",nrows=MAXROWS)
+			data = repo.table("cust_dryer_config")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_dryer_config),0)
 			self.assertGreater(len(repo["cust_dryer_config"]),0)
@@ -715,7 +717,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_dryer_trans(self):
-			data = repo.table("cust_dryer_trans",nrows=MAXROWS)
+			data = repo.table("cust_dryer_trans")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_dryer_trans),0)
 			self.assertGreater(len(repo["cust_dryer_trans"]),0)
@@ -724,7 +726,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_meter_trans(self):
-			data = repo.table("cust_meter_trans",nrows=MAXROWS)
+			data = repo.table("cust_meter_trans")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_meter_trans),0)
 			self.assertGreater(len(repo["cust_meter_trans"]),0)
@@ -733,7 +735,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_tstat_config(self):
-			data = repo.table("cust_tstat_config",nrows=MAXROWS)
+			data = repo.table("cust_tstat_config")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_tstat_config),0)
 			self.assertGreater(len(repo["cust_tstat_config"]),0)
@@ -742,7 +744,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_tstat_trans(self):
-			data = repo.table("cust_tstat_trans",nrows=MAXROWS)
+			data = repo.table("cust_tstat_trans")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_tstat_trans),0)
 			self.assertGreater(len(repo["cust_tstat_trans"]),0)
@@ -751,7 +753,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_usage_projection(self):
-			data = repo.table("cust_usage_projection",nrows=MAXROWS)
+			data = repo.table("cust_usage_projection")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_usage_projection),0)
 			self.assertGreater(len(repo["cust_usage_projection"]),0)
@@ -760,7 +762,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_wh_config(self):
-			data = repo.table("cust_wh_config",nrows=MAXROWS)
+			data = repo.table("cust_wh_config")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_wh_config),0)
 			self.assertGreater(len(repo["cust_wh_config"]),0)
@@ -769,7 +771,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_cust_wh_trans(self):
-			data = repo.table("cust_wh_trans",nrows=MAXROWS)
+			data = repo.table("cust_wh_trans")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.cust_wh_trans),0)
 			self.assertGreater(len(repo["cust_wh_trans"]),0)
@@ -778,7 +780,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_customer(self):
-			data = repo.table("customer",nrows=MAXROWS)
+			data = repo.table("customer")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.customer),0)
 			self.assertGreater(len(repo["customer"]),0)
@@ -787,7 +789,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_dashboard_data(self):
-			data = repo.table("dashboard_data",nrows=MAXROWS)
+			data = repo.table("dashboard_data")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.dashboard_data),0)
 			self.assertGreater(len(repo["dashboard_data"]),0)
@@ -796,7 +798,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_dev_type_comfort_level(self):
-			data = repo.table("dev_type_comfort_level",nrows=MAXROWS)
+			data = repo.table("dev_type_comfort_level")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.dev_type_comfort_level),0)
 			self.assertGreater(len(repo["dev_type_comfort_level"]),0)
@@ -805,7 +807,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_device_type(self):
-			data = repo.table("device_type",nrows=MAXROWS)
+			data = repo.table("device_type")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.device_type),0)
 			self.assertGreater(len(repo["device_type"]),0)
@@ -814,7 +816,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_experiment(self):
-			data = repo.table("experiment",nrows=MAXROWS)
+			data = repo.table("experiment")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.experiment),0)
 			self.assertGreater(len(repo["experiment"]),0)
@@ -823,7 +825,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_experiment_participant(self):
-			data = repo.table("experiment_participant",nrows=MAXROWS)
+			data = repo.table("experiment_participant")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.experiment_participant),0)
 			self.assertGreater(len(repo["experiment_participant"]),0)
@@ -832,7 +834,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_fixed_price(self):
-			data = repo.table("fixed_price",nrows=MAXROWS)
+			data = repo.table("fixed_price")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.fixed_price),0)
 			self.assertGreater(len(repo["fixed_price"]),0)
@@ -841,7 +843,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_home_mode_type(self):
-			data = repo.table("home_mode_type",nrows=MAXROWS)
+			data = repo.table("home_mode_type")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.home_mode_type),0)
 			self.assertGreater(len(repo["home_mode_type"]),0)
@@ -850,7 +852,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_invensys_meter(self):
-			data = repo.table("invensys_meter",nrows=MAXROWS)
+			data = repo.table("invensys_meter")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.invensys_meter),0)
 			self.assertGreater(len(repo["invensys_meter"]),0)
@@ -859,7 +861,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_invensys_weather(self):
-			data = repo.table("invensys_weather",nrows=MAXROWS)
+			data = repo.table("invensys_weather")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.invensys_weather),0)
 			self.assertGreater(len(repo["invensys_weather"]),0)
@@ -868,7 +870,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_midc(self):
-			data = repo.table("midc",nrows=MAXROWS)
+			data = repo.table("midc")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.midc),0)
 			self.assertGreater(len(repo["midc"]),0)
@@ -877,7 +879,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_noaa_weather_station(self):
-			data = repo.table("noaa_weather_station",nrows=MAXROWS)
+			data = repo.table("noaa_weather_station")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.noaa_weather_station),0)
 			self.assertGreater(len(repo["noaa_weather_station"]),0)
@@ -886,7 +888,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_prices(self):
-			data = repo.table("prices",nrows=MAXROWS)
+			data = repo.table("prices")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.prices),0)
 			self.assertGreater(len(repo["prices"]),0)
@@ -895,7 +897,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_sell(self):
-			data = repo.table("sell",nrows=MAXROWS)
+			data = repo.table("sell")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.sell),0)
 			self.assertGreater(len(repo["sell"]),0)
@@ -904,7 +906,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_supplier(self):
-			data = repo.table("supplier",nrows=MAXROWS)
+			data = repo.table("supplier")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.supplier),0)
 			self.assertGreater(len(repo["supplier"]),0)
@@ -913,7 +915,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_supplier_feeder_limit(self):
-			data = repo.table("supplier_feeder_limit",nrows=MAXROWS)
+			data = repo.table("supplier_feeder_limit")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.supplier_feeder_limit),0)
 			self.assertGreater(len(repo["supplier_feeder_limit"]),0)
@@ -922,7 +924,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_supplier_feeder_status(self):
-			data = repo.table("supplier_feeder_status",nrows=MAXROWS)
+			data = repo.table("supplier_feeder_status")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.supplier_feeder_status),0)
 			self.assertGreater(len(repo["supplier_feeder_status"]),0)
@@ -931,7 +933,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_supplier_type(self):
-			data = repo.table("supplier_type",nrows=MAXROWS)
+			data = repo.table("supplier_type")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.supplier_type),0)
 			self.assertGreater(len(repo["supplier_type"]),0)
@@ -940,7 +942,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_tou_prices(self):
-			data = repo.table("tou_prices",nrows=MAXROWS)
+			data = repo.table("tou_prices")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.tou_prices),0)
 			self.assertGreater(len(repo["tou_prices"]),0)
@@ -949,7 +951,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_unit_type(self):
-			data = repo.table("unit_type",nrows=MAXROWS)
+			data = repo.table("unit_type")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.unit_type),0)
 			self.assertGreater(len(repo["unit_type"]),0)
@@ -958,7 +960,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_weather(self):
-			data = repo.table("weather",nrows=MAXROWS)
+			data = repo.table("weather")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.weather),0)
 			self.assertGreater(len(repo["weather"]),0)
@@ -967,7 +969,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_weather_copa_hourly(self):
-			data = repo.table("weather_copa_hourly",nrows=MAXROWS)
+			data = repo.table("weather_copa_hourly")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.weather_copa_hourly),0)
 			self.assertGreater(len(repo["weather_copa_hourly"]),0)
@@ -976,7 +978,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_weather_degree_hours(self):
-			data = repo.table("weather_degree_hours",nrows=MAXROWS)
+			data = repo.table("weather_degree_hours")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.weather_degree_hours),0)
 			self.assertGreater(len(repo["weather_degree_hours"]),0)
@@ -985,7 +987,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_weather_degree_month(self):
-			data = repo.table("weather_degree_month",nrows=MAXROWS)
+			data = repo.table("weather_degree_month")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.weather_degree_month),0)
 			self.assertGreater(len(repo["weather_degree_month"]),0)
@@ -994,7 +996,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_weather_sites(self):
-			data = repo.table("weather_sites",nrows=MAXROWS)
+			data = repo.table("weather_sites")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.weather_sites),0)
 			self.assertGreater(len(repo["weather_sites"]),0)
@@ -1003,7 +1005,7 @@ if __name__ == "__main__":
 				self.assertGreater(len(data[field]),0)
 
 		def test_weathernoaa(self):
-			data = repo.table("weathernoaa",nrows=MAXROWS)
+			data = repo.table("weathernoaa")
 			self.assertGreater(len(data),0)
 			self.assertGreater(len(repo.weathernoaa),0)
 			self.assertGreater(len(repo["weathernoaa"]),0)
