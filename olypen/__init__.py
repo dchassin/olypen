@@ -49,6 +49,10 @@ import requests
 
 DATASRC = "https://olypen.s3.us-west-2.amazonaws.com/data"
 DATADIR = ".olypen_data"
+try:
+	import olypen_config
+except ModuleNotFoundError:
+	pass
 
 class OlypenException(Exception):
 	"""Olympic data exception class
