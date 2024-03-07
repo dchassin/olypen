@@ -60,6 +60,15 @@ mkt_id
 
 Additional examples are available in the [`examples` folder](examples).
 
+## Configuration
+
+You can change the `DATASRC` and `DATADIR` using the file `olypen_config.py`, e.g.,
+
+~~~
+DATASRC = "https://olypen.s3.us-west-2.amazonaws.com/data"
+DATADIR = ".olypen_data"
+~~~
+
 ## Citation
 
 Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC National Accelerator Laboratory, Menlo Park, California (2023). URL: https://github.com/dchassin/olypen.
