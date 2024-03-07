@@ -69,6 +69,14 @@ DATASRC = "https://olypen.s3.us-west-2.amazonaws.com/data"
 DATADIR = ".olypen_data"
 ~~~
 
+## Data Browser
+
+You may run the `marimo` app to browse the data:
+
+~~~
+marimo run olypen_browser.py
+~~~
+
 ## Citation
 
 Chassin, David P, "Olympic Peninsula Demonstration Testbed Data Accessor", SLAC National Accelerator Laboratory, Menlo Park, California (2023). URL: https://github.com/dchassin/olypen.
